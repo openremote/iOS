@@ -28,20 +28,23 @@
 
 - (void)goBack:(id)sender;
 
-@property (nonatomic, strong) UITextField *usernameField;
-@property (nonatomic, strong) UITextField *passwordField;
+@property (weak, nonatomic) IBOutlet UITextField *usernameField;
+@property (weak, nonatomic) IBOutlet UITextField *passwordField;
 @property (nonatomic, weak) NSObject <LoginViewControllerDelegate> *delegate;
 @property (nonatomic, strong, readwrite) id context;
 
 @property (nonatomic, weak) ORControllerConfig *controller;
+@property (strong, nonatomic) IBOutlet UITableViewCell *userNameCell;
+@property (strong, nonatomic) IBOutlet UITableViewCell *passwordCell;
+@property (strong, nonatomic) IBOutlet UITableViewCell *signInButtonCell;
 @end
 
 @implementation LoginViewController
 
 - (id)initWithController:(ORControllerConfig *)aController delegate:(NSObject <LoginViewControllerDelegate> *)aDelegate context:(id)aContext
 {
-    self = [super initWithStyle:UITableViewStyleGrouped];
-	if (self) {
+    self = [super initWithNibName:@"LoginViewController" bundle:nil];
+    if (self) {
 		[self setTitle:@"Sign in"];
         self.delegate = aDelegate;
         self.context = aContext;
@@ -70,7 +73,7 @@
 }
 
 // Send sign in request to remote controller server by loginViewController's delegate.
-- (void)signin:(id)sender
+- (IBAction)signin:(id)sender
 {
 	if (self.usernameField.text == nil || self.passwordField.text == nil ||
 			[@"" isEqualToString:self.usernameField.text] || [@"" isEqualToString:self.passwordField.text]) {
@@ -102,53 +105,18 @@
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {    
-	static NSString *loginCellIdentifier = @"loginCell";
-	
-	UITableViewCell *loginCell = [tableView dequeueReusableCellWithIdentifier:loginCellIdentifier];
-
-	if (loginCell == nil) {
-		loginCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:loginCellIdentifier];
-		loginCell.selectionStyle = UITableViewCellSelectionStyleNone;
-	}
-
 	if (indexPath.section == 0) {
-		UITextField *textField = [[UITextField alloc] initWithFrame:CGRectZero];
-		textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-		textField.font = [UIFont systemFontOfSize:22];
-		textField.keyboardType = UIKeyboardTypeURL;
-		textField.adjustsFontSizeToFitWidth = YES;
-		textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
-		textField.autocorrectionType = UITextAutocorrectionTypeNo;
-		textField.textColor = [UIColor darkGrayColor];
-		textField.returnKeyType = UIReturnKeyDone;
-		textField.frame = CGRectInset(CGRectMake(100, (loginCell.bounds.size.height - 26)/2.0, loginCell.bounds.size.width,26),10,0);
-		[textField setDelegate:self];
-		[loginCell.contentView addSubview:textField];
-    
-		if (indexPath.row == 0) {
-			loginCell.textLabel.text = @"Username";
-			[textField becomeFirstResponder];
-			self.usernameField = textField;
-			self.usernameField.text = self.controller.userName;
-		} else if (indexPath.row == 1) {
-			loginCell.textLabel.text = @"Password";
-			[textField setSecureTextEntry:YES];
-			self.passwordField = textField;
-		}
+        if (indexPath.row == 0) {
+            [self.usernameField becomeFirstResponder];
+            self.usernameField.text = self.controller.userName;
+            return self.userNameCell;
+        } else if (indexPath.row == 1) {
+            return self.passwordCell;
+        }
 	} else if (indexPath.section == 1) {
-		UIButton *signinButton = [UIButton buttonWithType:UIButtonTypeCustom];
-		
-		UIImage *buttonImage = [[UIImage imageNamed:@"btn_green.png"] stretchableImageWithLeftCapWidth:20 topCapHeight:20];
-		[signinButton setBackgroundImage:buttonImage forState:UIControlStateNormal];
-		float height = [tableView rectForRowAtIndexPath:indexPath].size.height;
-		[signinButton setFrame:CGRectMake(0, 0, loginCell.frame.size.width, height)];
-		signinButton.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-		signinButton.titleLabel.font = [UIFont boldSystemFontOfSize:18];
-		[signinButton setTitle:@"Sign In" forState:UIControlStateNormal];
-		[loginCell.contentView addSubview:signinButton];		
-		[signinButton addTarget:self action:@selector(signin:) forControlEvents:UIControlEventTouchDown];
+        return self.signInButtonCell;
 	}
-	return loginCell;
+    return nil;
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
@@ -193,14 +161,9 @@
 	return nil;
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+- (BOOL)shouldAutorotate
 {
 	return YES;
 }
-
-@synthesize usernameField;
-@synthesize passwordField;
-@synthesize delegate;
-@synthesize context;
 
 @end

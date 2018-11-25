@@ -28,21 +28,14 @@
 /**
  * This class is mainly responsible for switching screenView in groupController's screenViews.
  */
-@interface PaginationController : UIViewController <UIScrollViewDelegate, UITabBarDelegate> {
-	NSArray *viewControllers;
-	NSUInteger selectedIndex;
-	
-	UIScrollView *scrollView;
-	UIPageControl *pageControl;
-	
-	BOOL isLandscape;
-	
-	CGFloat frameWidth;
-	CGFloat frameHeight;	
-}
+@interface PaginationController : UIViewController <UIScrollViewDelegate, UITabBarDelegate>
 
 @property(nonatomic,copy) NSArray *viewControllers;
 @property(nonatomic,readonly) NSUInteger selectedIndex;
+@property (nonatomic, weak) ImageCache *imageCache;
+@property (nonatomic) BOOL isLandscape;
+@property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic, strong) UIPageControl *pageControl;
 
 - (id)initWithGroup:(ORGroup *)aGroup tabBar:(ORTabBar *)aTabBar;
 
@@ -71,6 +64,5 @@
  */
 - (BOOL)switchToFirstScreen;
 
-@property (nonatomic, weak) ImageCache *imageCache;
 
 @end

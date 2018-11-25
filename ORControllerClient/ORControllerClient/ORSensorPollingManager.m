@@ -112,7 +112,7 @@ typedef void (^PollingBlock)();
                                               [sensorRegistry updateWithSensorValues:sensorValues];
                                           }
                                           
-                                          NSLog(@"poll got values");
+//                                          NSLog(@"poll got values");
                                           
                                           // TODO: fix the memory management issue
                                           

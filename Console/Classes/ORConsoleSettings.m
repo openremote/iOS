@@ -96,7 +96,7 @@
 
 - (ORControllerConfig *)addControllerForURL:(NSString *)url
 {
-    ORControllerConfig *controller = [NSEntityDescription insertNewObjectForEntityForName:@"ORControllerConfig" inManagedObjectContext:self.managedObjectContext];
+    ORControllerConfig *controller = [NSEntityDescription insertNewObjectForEntityForName:@"ORController" inManagedObjectContext:self.managedObjectContext];
     controller.primaryURL = url;
     [self addController:controller];
     if (!self.selectedController) {

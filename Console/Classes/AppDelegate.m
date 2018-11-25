@@ -31,6 +31,7 @@
 #import "ImageCache.h"
 #import "ViewHelper.h"
 #import "DefinitionManager.h"
+#import "SplashScreenViewController.h"
 
 #define STARTUP_UPDATE_TIMEOUT 10
 
@@ -43,28 +44,34 @@
 @property (nonatomic, strong) ImageCache *imageCache;
 @property (nonatomic, strong) DefinitionManager *definitionManager;
 
+@property (nonatomic, strong) SplashScreenViewController *splashScreenViewController;
 @end
 
 @implementation AppDelegate
 
-- (void)applicationDidFinishLaunching:(UIApplication *)application
-{
+
+
+// when it's launched by other apps.
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     self.imageCache = [[ImageCache alloc] initWithCachePath:[DirectoryDefinition imageCacheFolder]];
     ORConsoleSettingsManager *settingsManager = [[ORConsoleSettingsManager alloc] init];
-    
+
     self.definitionManager = [[DefinitionManager alloc] init];
     self.definitionManager.imageCache = self.imageCache;
-    
+
+    // Default window for the app
+    window = [[GestureWindow alloc] init];
+
     self.defaultViewController = [[DefaultViewController alloc] initWithSettingsManager:settingsManager definitionManager:self.definitionManager delegate:self];
     self.defaultViewController.imageCache = self.imageCache;
 
-	// Default window for the app
-	window = [[GestureWindow alloc] init];
-	[window makeKeyAndVisible];
-	
-    window.rootViewController = self.defaultViewController;
-	
-	//Init UpdateController and set delegate to this class, it have three delegate methods
+    [window makeKeyAndVisible];
+
+    self.splashScreenViewController = [[SplashScreenViewController alloc] init];
+
+    window.rootViewController = self.splashScreenViewController;
+
+    //Init UpdateController and set delegate to this class, it have three delegate methods
     // - (void)didUpdate;
     // - (void)didUseLocalCache:(NSString *)errorMessage;
     // - (void)didUpdateFail:(NSString *)errorMessage;
@@ -72,13 +79,10 @@
     updateController.imageCache = self.imageCache;
 
     [updateController startup];
-    
-    // settings manager is not retained by this class, objects using it must have a strong reference to it
-}
 
-// when it's launched by other apps.
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-	[self applicationDidFinishLaunching:application];
+    [[UITabBar appearance] setBarStyle:UIBarStyleBlackOpaque];
+
+    // settings manager is not retained by this class, objects using it must have a strong reference to it
 	return YES;
 }
 
@@ -120,6 +124,7 @@
 	} else {//blocked from sending command, should refresh command.
 		[self.defaultViewController refreshPolling];
 	}
+    window.rootViewController = self.defaultViewController;
     [[NSNotificationCenter defaultCenter] postNotificationName:NotificationHideLoading object:nil];
 }
 
@@ -153,5 +158,19 @@
 }
 
 @synthesize defaultViewController;
+
+- (UIWindow *)mainWindow {
+    return window;
+}
+
+- (void)replaceDefaultViewController:(DefaultViewController *)newDefaultViewController {
+    self.defaultViewController = newDefaultViewController;
+    window.rootViewController = newDefaultViewController;
+}
+
+
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
+    return self.defaultViewController.supportedInterfaceOrientations;
+}
 
 @end

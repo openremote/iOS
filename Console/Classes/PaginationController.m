@@ -19,10 +19,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #import "PaginationController.h"
-#import "ScreenViewController.h"
 #import "GroupController.h"
 #import "ORControllerClient/ORObjectIdentifier.h"
-#import "ORControllerClient/ORGroup.h"
 #import "ORControllerClient/ORScreen.h"
 #import "ORControllerClient/ORTabBar.h"
 #import "ORControllerClient/ORTabBarItem.h"
@@ -33,33 +31,20 @@
 #import "ORControllerClient/ORScreenNavigation.h"
 #import "ORControllerClient/ORConsole.h"
 #import "ORConsoleSettingsManager.h"
-#import "ORConsoleSettings.h"
 #import "ORControllerConfig.h"
-#import "DirectoryDefinition.h"
-#import "NotificationConstant.h"
 #import "ORScrollView.h"
-#import "ImageCache.h"
 
-#define PAGE_CONTROL_HEIGHT 20
-#define kTabBarHeight 49.0
+#define PAGE_CONTROL_HEIGHT ((CGFloat)20)
+#define kTabBarHeight ((CGFloat) 49.0)
 
 @interface PaginationController ()
-
-- (void)initView;
-- (void)updateView;
-- (void)initViewForPage:(NSUInteger)page;
-- (void)updateViewForPage:(NSUInteger)page;
-- (void)updateViewForCurrentPage;
-- (void)updateViewForCurrentPageAndBothSides;
-- (void)pageControlValueDidChange:(id)sender;
-- (void)scrollToSelectedViewWithAnimation:(BOOL)withAnimation;
-- (BOOL)switchToScreen:(ORScreen *)aScreen withAnimation:(BOOL) withAnimation;
-- (void)updateTabBarItemSelection;
 
 @property (nonatomic, strong) ORGroup *group;
 @property (nonatomic, strong) ORTabBar *tabBar;
 @property (nonatomic, weak) UITabBar *uiTabBar;
+@property (nonatomic, readwrite) NSUInteger selectedIndex;
 
+@property (nonatomic) BOOL inRotation;
 @end
 
 @implementation PaginationController
@@ -89,16 +74,13 @@
  * Assign the ScreenViewController array to paginationController with landscape boolean value.
  */
 - (void)setViewControllers:(NSArray *)newViewControllers isLandscape:(BOOL)isLandscapeOrientation {
-	isLandscape = isLandscapeOrientation;
-	CGSize size = [UIScreen mainScreen].bounds.size;
-	frameWidth = isLandscape ? size.height : size.width;
-	frameHeight = isLandscape ? size.width : size.height;
+	self.isLandscape = isLandscapeOrientation;
 
-	for (UIView *view in [scrollView subviews]) {
+	for (UIView *view in [self.scrollView subviews]) {
 		[view removeFromSuperview];
 	}
 	
-	viewControllers = newViewControllers;
+	self.viewControllers = newViewControllers;
 	
 	//Recover last screen
 	NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -106,37 +88,41 @@
 	NSLog(@"last screen id = %@", lastScreenIdenfitier);
 	
 	if (lastScreenIdenfitier) {
-		for (int i = 0; i < [viewControllers count]; i++) {
-			if ([lastScreenIdenfitier isEqual:[(ORScreen *)[[viewControllers objectAtIndex:i] screen] identifier]]) {
+		for (unsigned int i = 0; i < [self.viewControllers count]; i++) {
+			if ([lastScreenIdenfitier isEqual:[(ORScreen *)[self.viewControllers[i] screen] identifier]]) {
 //				UIViewController *vc = [viewControllers objectAtIndex:i];
                 // TODO: ebr : check why this is ???
 //				vc.view.bounds = scrollView.bounds;
-				selectedIndex = i;
+                self.selectedIndex = i;
 				break;
 			}
 		}
 	} else {
-		selectedIndex = 0;
+        self.selectedIndex = 0;
 	}
 }
 
 - (BOOL)switchToFirstScreen {
-	return [self switchToScreen:((ScreenViewController *)[viewControllers objectAtIndex:0]).screen];
+	return [self switchToScreen:((ScreenViewController *) self.viewControllers[0]).screen];
 }
 
 - (ScreenViewController *)currentScreenViewController {
-	return [viewControllers objectAtIndex:selectedIndex]; 
+    if (self.viewControllers.count) {
+        return self.viewControllers[self.selectedIndex];
+    } else {
+        return nil;
+    }
 }
 
 - (void)initView {
-	[scrollView setContentSize:CGSizeMake(frameWidth * [viewControllers count], frameHeight)];
-	[pageControl setNumberOfPages:[viewControllers count]];
+	self.scrollView.contentSize = CGSizeMake(self.view.frame.size.width * [self.viewControllers count], self.view.frame.size.height);
+	self.pageControl.numberOfPages = [self.viewControllers count];
 	[self updateViewForCurrentPage];
 }
 
 - (void)updateView {
-	[scrollView setContentSize:CGSizeMake(frameWidth * [viewControllers count], frameHeight)];
-	[pageControl setNumberOfPages:[viewControllers count]];
+	self.scrollView.contentSize = CGSizeMake(self.view.frame.size.width * [self.viewControllers count], self.view.frame.size.height);
+	self.pageControl.numberOfPages = [self.viewControllers count];
 	[self updateViewForCurrentPageAndBothSides];
 }
 
@@ -148,17 +134,17 @@
 //Return YES if succuess
 - (BOOL)switchToScreen:(ORScreen *)aScreen withAnimation:(BOOL) withAnimation {
 	int index = -1;
-	for (int i = 0; i< viewControllers.count; i++) {
-		ScreenViewController *svc = (ScreenViewController *)[viewControllers objectAtIndex:i];
+	for (int i = 0; i< self.viewControllers.count; i++) {
+		ScreenViewController *svc = (ScreenViewController *) self.viewControllers[(NSUInteger) i];
 		if ([svc.screen.identifier isEqual:aScreen.identifier]) {
 			index = i;
 			break;
 		}
 	}
 	if (index != -1) {//found screen in current orientation
-		selectedIndex = index;
-		NSLog(@"switch to screen index = %lu, id = %@ animation=%d", (unsigned long)selectedIndex, aScreen.identifier, withAnimation);
-		[pageControl setCurrentPage:selectedIndex];
+        self.selectedIndex = (NSUInteger) index;
+		NSLog(@"switch to screen index = %lu, id = %@ animation=%d", (unsigned long)self.selectedIndex, aScreen.identifier, withAnimation);
+		[self.pageControl setCurrentPage:self.selectedIndex];
 		[self scrollToSelectedViewWithAnimation:withAnimation];
 	} else {
 		// not found, may be in the opposite orientation, or a invalid screenId.
@@ -171,8 +157,8 @@
 
 // Save last screen's id while switching screen view for recovery of lastScreenView in RootViewController.
 - (void)saveLastScreen {
-	if (selectedIndex < viewControllers.count) {
-		ORObjectIdentifier *lastScreenIdentifier = ((ScreenViewController *)[viewControllers objectAtIndex:selectedIndex]).screen.identifier;
+	if (self.selectedIndex < self.viewControllers.count) {
+		ORObjectIdentifier *lastScreenIdentifier = ((ScreenViewController *) self.viewControllers[self.selectedIndex]).screen.identifier;
 		if (!lastScreenIdentifier) {
 			return;
 		}
@@ -183,36 +169,37 @@
 
 // Refresh the current screenView.
 - (void)updateViewForCurrentPage {
-	[self initViewForPage:selectedIndex];
-	[pageControl setCurrentPage:selectedIndex];
+	[self initViewForPage:self.selectedIndex];
+	self.pageControl.currentPage = self.selectedIndex;
     [self updateTabBarItemSelection];
 }
 
 // Refresh the current screenView, previous screenView and next screenView.
 - (void)updateViewForCurrentPageAndBothSides {
-	[self updateViewForPage:selectedIndex - 1];
-	[self updateViewForPage:selectedIndex];
-	[self updateViewForPage:selectedIndex + 1];
+	[self updateViewForPage:self.selectedIndex - 1];
+	[self updateViewForPage:self.selectedIndex];
+	[self updateViewForPage:self.selectedIndex + 1];
     [self updateTabBarItemSelection];
 
-	[pageControl setCurrentPage:selectedIndex];
+	[self.pageControl setCurrentPage:self.selectedIndex];
 	[self saveLastScreen];
 }
 
 // Init current screen view of paginationController with specified page index.
 - (void)initViewForPage:(NSUInteger)page {
-	if (page >= [viewControllers count]) return;
-	UIViewController *controller = [viewControllers objectAtIndex:page];
+	if (page >= [self.viewControllers count]) return;
+	UIViewController *controller = self.viewControllers[page];
 	
-	if (controller.view.superview != scrollView) {
-		CGRect frame = scrollView.bounds;
-		frame.origin.x = frameWidth * page;
+	if (controller.view.superview != self.scrollView) {
+		CGRect frame = self.scrollView.bounds;
+		frame.origin.x = self.view.frame.size.width * page;
 		[controller.view setFrame:frame];
-		scrollView.contentOffset = CGPointMake(frame.origin.x, 0);
-		[scrollView addSubview:controller.view];
+		self.scrollView.contentOffset = CGPointMake(frame.origin.x, 0);
+        [self addChildViewController:controller];
+        [self.scrollView addSubview:controller.view];
 	}
 	
-	if (page == selectedIndex) {
+	if (page == self.selectedIndex) {
 		[((ScreenViewController *)controller) startPolling];
 	} else {
 		[((ScreenViewController *)controller) stopPolling];
@@ -221,17 +208,18 @@
 
 // Refresh the screenView page index specified.
 - (void)updateViewForPage:(NSUInteger)page {
-	if (page >= [viewControllers count]) return;
-	UIViewController *controller = [viewControllers objectAtIndex:page];
+	if (page >= [self.viewControllers count]) return;
+	UIViewController *controller = self.viewControllers[page];
     
-	CGRect frame = scrollView.bounds;
-	frame.origin.x = frameWidth * page;
+	CGRect frame = self.scrollView.bounds;
+	frame.origin.x = self.view.frame.size.width * page;
 	[controller.view setFrame:frame];
-	if (controller.view.superview != scrollView) {
-		[scrollView addSubview:controller.view];
+	if (controller.view.superview != self.scrollView) {
+        [self addChildViewController:controller];
+        [self.scrollView addSubview:controller.view];
 	}
 	
-	if (page == selectedIndex) {
+	if (page == self.selectedIndex) {
 		[((ScreenViewController *)controller) startPolling];
 	} else {
 		[((ScreenViewController *)controller) stopPolling];
@@ -243,54 +231,85 @@
 	
 	//HACK: clear 2nd view, it's a hack, beause 2nd view always cover 1st view.
 	//TODO: should fix this hack.
-	if (withAnimation == NO && selectedIndex == 0 && viewControllers.count > 1) {
-		UIViewController *vc = [viewControllers objectAtIndex:1];
+	if (!withAnimation && self.selectedIndex == 0 && self.viewControllers.count > 1) {
+		UIViewController *vc = self.viewControllers[1];
 		[vc.view removeFromSuperview];
 	}
 	
 	[self updateViewForCurrentPage];
-	CGRect frame = scrollView.bounds;
+	CGRect frame = self.scrollView.bounds;
 
-	frame.origin.x = frameWidth * selectedIndex;
+	frame.origin.x = self.view.frame.size.width * self.selectedIndex;
 	frame.origin.y = 0;
-	[scrollView scrollRectToVisible:frame animated:withAnimation];
+	[self.scrollView scrollRectToVisible:frame animated:withAnimation];
 }
 
 - (void)loadView {
 	[super loadView];
-	[self.view setFrame:CGRectMake(0, 0, frameWidth, frameHeight)];
+	self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
 
-	scrollView = [[ORScrollView alloc] init];
-	[scrollView setDelegate:self];
-	[scrollView setPagingEnabled:YES];
-	[scrollView setShowsVerticalScrollIndicator:NO];
-	[scrollView setShowsHorizontalScrollIndicator:NO];
-	[scrollView setScrollsToTop:NO];
-	[scrollView setOpaque:YES];
-	[scrollView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+	self.scrollView = [[ORScrollView alloc] init];
+	self.scrollView.delegate = self;
+	self.scrollView.pagingEnabled = YES;
+	self.scrollView.showsVerticalScrollIndicator = NO;
+	self.scrollView.showsHorizontalScrollIndicator = NO;
+	self.scrollView.scrollsToTop = NO;
+	self.scrollView.opaque = YES;
+	self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     // Scroll view takes whole screen height, even if a tab bar is present
     // This is so the rendering on iOS console is in sync with how the modeler presents it
-	[scrollView setFrame:CGRectMake(0, 0, frameWidth, frameHeight)];
-	[scrollView setBackgroundColor:[UIColor blackColor]];
-	[self.view addSubview:scrollView];
-	pageControl = [[UIPageControl alloc] init];
-	if (viewControllers.count > 1) {
-		[pageControl setAutoresizingMask:UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth];
-		[pageControl setFrame:CGRectMake(0, frameHeight - PAGE_CONTROL_HEIGHT - (self.tabBar?kTabBarHeight:0.0), frameWidth, PAGE_CONTROL_HEIGHT)];
-		[pageControl setBackgroundColor:[UIColor clearColor]];
-		[pageControl setOpaque:NO];
-		[pageControl addTarget:self action:@selector(pageControlValueDidChange:) forControlEvents:UIControlEventValueChanged];
-		[self.view addSubview:pageControl];
+	self.scrollView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+	self.scrollView.backgroundColor = [UIColor blackColor];
+    [self.view addSubview:self.scrollView];
+	self.pageControl = [[UIPageControl alloc] init];
+	if (self.viewControllers.count > 1) {
+		self.pageControl.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
+		self.pageControl.frame = CGRectMake(0, self.view.frame.size.height - PAGE_CONTROL_HEIGHT - (self.tabBar?kTabBarHeight:0.0f), self.view.frame.size.width, PAGE_CONTROL_HEIGHT);
+		self.pageControl.backgroundColor = [UIColor clearColor];
+		self.pageControl.opaque = NO;
+		[self.pageControl addTarget:self action:@selector(pageControlValueDidChange:) forControlEvents:UIControlEventValueChanged];
+        [self.view addSubview:self.pageControl];
 	}
     // Tab bar added latest so it sits on top of other views
     if (self.tabBar) {
-        UITabBar *tmpBar = [[UITabBar alloc] initWithFrame:CGRectMake(0.0, frameHeight - kTabBarHeight, frameWidth, kTabBarHeight)];
+        UITabBar *tmpBar = [[UITabBar alloc] initWithFrame:CGRectZero];
         self.uiTabBar = tmpBar;
+        self.uiTabBar.translatesAutoresizingMaskIntoConstraints = NO;
         [self.view addSubview:self.uiTabBar];
+        [self.view addConstraints:@[
+                [NSLayoutConstraint constraintWithItem:self.uiTabBar
+                                             attribute:NSLayoutAttributeBottom
+                                             relatedBy:NSLayoutRelationEqual
+                                                toItem:self.view
+                                             attribute:NSLayoutAttributeBottom
+                                            multiplier:1
+                                              constant:0],
+                [NSLayoutConstraint constraintWithItem:self.uiTabBar
+                                             attribute:NSLayoutAttributeLeading
+                                             relatedBy:NSLayoutRelationEqual
+                                                toItem:self.view
+                                             attribute:NSLayoutAttributeLeading
+                                            multiplier:1
+                                              constant:0],
+                [NSLayoutConstraint constraintWithItem:self.uiTabBar
+                                             attribute:NSLayoutAttributeTrailing
+                                             relatedBy:NSLayoutRelationEqual
+                                                toItem:self.view
+                                             attribute:NSLayoutAttributeTrailing
+                                            multiplier:1
+                                              constant:0],
+                [NSLayoutConstraint constraintWithItem:self.uiTabBar
+                                             attribute:NSLayoutAttributeHeight
+                                             relatedBy:NSLayoutRelationEqual
+                                                toItem:nil
+                                             attribute:NSLayoutAttributeNotAnAttribute
+                                            multiplier:1
+                                              constant:kTabBarHeight]
+        ]];
         NSMutableArray *tmpItems = [NSMutableArray arrayWithCapacity:[self.tabBar.items count]];
         // Not using fast iteration but standard for loop to have access to object index
-        for (int i = 0; i < [self.tabBar.items count]; i++) {
-            ORTabBarItem *item = [self.tabBar.items objectAtIndex:i];
+        for (unsigned int i = 0; i < [self.tabBar.items count]; i++) {
+            ORTabBarItem *item = self.tabBar.items[i];
             UITabBarItem *uiItem = [[UITabBarItem alloc] initWithTitle:item.label.text image:nil tag:i];
             UIImage *itemImage = [self.imageCache getImageNamed:item.image.src finalImageAvailable:^(UIImage *image) {
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -299,6 +318,7 @@
             }];
             if (itemImage) {
                 uiItem.image = itemImage;
+                uiItem.selectedImage = itemImage;
             }
             [tmpItems addObject:uiItem];
         }
@@ -312,18 +332,21 @@
 - (void)didReceiveMemoryWarning {
 	// Our view will be released when it has no superview, so set these references to nil
 	if (self.view.superview == nil) {
-		scrollView = nil;
-		pageControl = nil;
+		self.scrollView = nil;
+		self.pageControl = nil;
 	}
 	
 	[super didReceiveMemoryWarning];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)sender {
-	// Switch the indicator when more than 50% of the previous/next page is visible
-    int calculatedIndex = floor((scrollView.contentOffset.x - frameWidth / 2) / frameWidth) + 1;
-    selectedIndex = MIN(MAX(0, calculatedIndex), [viewControllers count] - 1);
-	[self updateViewForCurrentPageAndBothSides];
+    // don't handle scrolling while rotating, it messes up selectedIndex
+    if (!self.inRotation) {
+        // Switch the indicator when more than 50% of the previous/next page is visible
+        int calculatedIndex = (int) (floor((self.scrollView.contentOffset.x - self.view.frame.size.width / 2) / self.view.frame.size.width) + 1);
+        self.selectedIndex = MIN(MAX(0, calculatedIndex), [self.viewControllers count] - 1);
+        [self updateViewForCurrentPageAndBothSides];
+    }
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)s {
@@ -333,23 +356,33 @@
 //	[scrollView setContentSize:CGSizeMake(frameWidth * pageControl.numberOfPages, frameHeight)];
 }
 
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [UIViewController attemptRotationToDeviceOrientation];
+}
+
 - (void)pageControlValueDidChange:(id)sender {
-	selectedIndex = pageControl.currentPage;
+    self.selectedIndex = self.pageControl.currentPage;
 	[self updateViewForCurrentPageAndBothSides];
 	
-	CGRect frame = scrollView.bounds;
-	frame.origin.x = frameWidth * selectedIndex;
+	CGRect frame = self.scrollView.bounds;
+	frame.origin.x = self.view.frame.size.width * self.selectedIndex;
 	frame.origin.y = 0;
-	[scrollView scrollRectToVisible:frame animated:YES];
+	[self.scrollView scrollRectToVisible:frame animated:YES];
 
 	// DENNIS: Maybe you want to make sure that the user can't interact with the scroll view while it is animating.
 	//[scrollView setUserInteractionEnabled:NO];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-	[self initView];
-    [super viewWillDisappear:animated];
+    [super viewWillAppear:animated];
+    [self initView];
 }
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    self.scrollView.contentSize = CGSizeMake(self.view.frame.size.width * [self.viewControllers count], self.view.frame.size.height);
+}
+
 
 /**
  * Verify that the screen that is current displayed is the target of the navigation of an item in the tab bar.
@@ -371,14 +404,19 @@
 			}
 		}
     }
-    self.uiTabBar.selectedItem = (selected != NSNotFound)?[self.uiTabBar.items objectAtIndex:selected]:nil;
+    if (selected != NSNotFound) {
+        self.uiTabBar.selectedItem = self.uiTabBar.items[selected];
+    }
+    else {
+        self.uiTabBar.selectedItem = nil;
+    }
 }
 
 #pragma mark UITabBar delegate
 
 - (void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item
 {
-    ORTabBarItem *tabBarItem = [self.tabBar.items objectAtIndex:item.tag];
+    ORTabBarItem *tabBarItem = self.tabBar.items[item.tag];
 	if (tabBarItem && tabBarItem.navigation) {
         [self.group.definition.console navigate:tabBarItem.navigation];
 	}
@@ -386,9 +424,15 @@
     // ! Do not do anything anymore here as after the navigation, self will be released if we moved to a different group
 }
 
-@synthesize group;
-@synthesize tabBar;
-@synthesize uiTabBar;
-@synthesize viewControllers, selectedIndex;
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    self.inRotation = YES;
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+    self.inRotation = NO;
+    [self initView];
+    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+}
 
 @end

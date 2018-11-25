@@ -48,31 +48,31 @@
     NSData *data = [NSData dataWithContentsOfURL:url];
 
     Capabilities *capabilities = [self.parser parseXMLData:data];
-    STAssertNotNil(capabilities, @"Valid XML should return capabilities object");
+    XCTAssertNotNil(capabilities, @"Valid XML should return capabilities object");
     
-    STAssertNotNil(capabilities.supportedVersions, @"Given XML contains versions information");
-    STAssertEquals([capabilities.supportedVersions count], (NSUInteger)2, @"Given XML contains 2 versions");
+    XCTAssertNotNil(capabilities.supportedVersions, @"Given XML contains versions information");
+    XCTAssertEqual([capabilities.supportedVersions count], (NSUInteger)2, @"Given XML contains 2 versions");
     NSArray *expectedVersions = @[@"2.0", @"2.1"];
-    STAssertEqualObjects(capabilities.supportedVersions, expectedVersions, @"Given XML contains 2.0 and 2.1 versions");
+    XCTAssertEqualObjects(capabilities.supportedVersions, expectedVersions, @"Given XML contains 2.0 and 2.1 versions");
 
-    STAssertNotNil(capabilities.apiSecurities, @"Given XML should contain API security information");
-    STAssertEquals([capabilities.apiSecurities count], (NSUInteger)2, @"Given XML contains 2 API securities");
+    XCTAssertNotNil(capabilities.apiSecurities, @"Given XML should contain API security information");
+    XCTAssertEqual([capabilities.apiSecurities count], (NSUInteger)2, @"Given XML contains 2 API securities");
     APISecurity *security = [capabilities.apiSecurities objectAtIndex:0];
-    STAssertEqualObjects(security.path, @"panels", @"First API security path is panels");
-    STAssertEquals(security.security, None, @"First API security security is none");
-    STAssertEquals(security.sslEnabled, NO, @"First API security  does not report SSL");
+    XCTAssertEqualObjects(security.path, @"panels", @"First API security path is panels");
+    XCTAssertEqual(security.security, None, @"First API security security is none");
+    XCTAssertEqual(security.sslEnabled, NO, @"First API security  does not report SSL");
     security = [capabilities.apiSecurities objectAtIndex:1];
-    STAssertEqualObjects(security.path, @"panel", @"Second API security path is panel");
-    STAssertEquals(security.security, HTTPBasic, @"Second API security security is HTTP-basic");
-    STAssertEquals(security.sslEnabled, YES, @"Second API security reports SSL");
+    XCTAssertEqualObjects(security.path, @"panel", @"Second API security path is panel");
+    XCTAssertEqual(security.security, HTTPBasic, @"Second API security security is HTTP-basic");
+    XCTAssertEqual(security.sslEnabled, YES, @"Second API security reports SSL");
     
-    STAssertNotNil(capabilities.capabilities, @"Given XML contains a capability definition");
-    STAssertEquals([capabilities.capabilities count], (NSUInteger)1, @"Given XML contains 1 capability definition");
+    XCTAssertNotNil(capabilities.capabilities, @"Given XML contains a capability definition");
+    XCTAssertEqual([capabilities.capabilities count], (NSUInteger)1, @"Given XML contains 1 capability definition");
     Capability *capability = [capabilities.capabilities objectAtIndex:0];
-    STAssertEqualObjects(capability.name, @"SIP", @"Given XML contains SIP capability definition");
-    STAssertNotNil(capability.properties, @"SIP capability in given XML contains properties");
-    STAssertEquals([capability.properties count], (NSUInteger)1, @"SIP capability in given XML contains 1 property");
-    STAssertEqualObjects([capability.properties valueForKey:@"port"], @"5060", @"SIP capability in given XML defines property with value 5060");
+    XCTAssertEqualObjects(capability.name, @"SIP", @"Given XML contains SIP capability definition");
+    XCTAssertNotNil(capability.properties, @"SIP capability in given XML contains properties");
+    XCTAssertEqual([capability.properties count], (NSUInteger)1, @"SIP capability in given XML contains 1 property");
+    XCTAssertEqualObjects([capability.properties valueForKey:@"port"], @"5060", @"SIP capability in given XML defines property with value 5060");
 }
 
 - (void)testVersionsOnlyCapabilitiesXML
@@ -81,18 +81,18 @@
     NSData *data = [NSData dataWithContentsOfURL:url];
     
     Capabilities *capabilities = [self.parser parseXMLData:data];
-    STAssertNotNil(capabilities, @"Valid XML should return capabilities object");
-    STAssertNotNil(capabilities.supportedVersions, @"Given XML should contain versions information");
-    STAssertEquals([capabilities.supportedVersions count], (NSUInteger)2, @"Given XML should contain 2 versions");
+    XCTAssertNotNil(capabilities, @"Valid XML should return capabilities object");
+    XCTAssertNotNil(capabilities.supportedVersions, @"Given XML should contain versions information");
+    XCTAssertEqual([capabilities.supportedVersions count], (NSUInteger)2, @"Given XML should contain 2 versions");
     NSArray *expectedVersions = @[@"2.0", @"2.1"];
-    STAssertEqualObjects(capabilities.supportedVersions, expectedVersions, @"Given XML should contain 2.0 and 2.1 versions");
-    STAssertNil(capabilities.apiSecurities, @"No API security information should be defined in the given XML");
-    STAssertNil(capabilities.capabilities, @"No other capabilities information should be defined in the given XML");
+    XCTAssertEqualObjects(capabilities.supportedVersions, expectedVersions, @"Given XML should contain 2.0 and 2.1 versions");
+    XCTAssertNil(capabilities.apiSecurities, @"No API security information should be defined in the given XML");
+    XCTAssertNil(capabilities.capabilities, @"No other capabilities information should be defined in the given XML");
 }
 
 - (void)testNilXMLDataReturnsNilCapabilities
 {
-    STAssertNil([self.parser parseXMLData:nil], @"Nil data should return nil capabilities");
+    XCTAssertNil([self.parser parseXMLData:nil], @"Nil data should return nil capabilities");
 }
 
 @synthesize parser;

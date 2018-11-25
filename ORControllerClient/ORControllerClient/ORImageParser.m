@@ -46,9 +46,9 @@
     self = [super initWithRegister:aRegister attributes:attributeDict];
     if (self) {
         [self addKnownTag:LINK];
-        self.image = [[ORImage alloc] initWithIdentifier:[[ORObjectIdentifier alloc] initWithStringId:[attributeDict objectForKey:ID]]
-                                                    src:[attributeDict objectForKey:SRC]];
-        [aRegister.definition addImageName:[attributeDict objectForKey:SRC]];
+        self.image = [[ORImage alloc] initWithIdentifier:[[ORObjectIdentifier alloc] initWithStringId:attributeDict[ID]]
+                                                     src:attributeDict[SRC]];
+        [aRegister.definition addImageName:attributeDict[SRC]];
         self.image.definition = aRegister.definition;
     }
     return self;
@@ -56,10 +56,10 @@
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict
 {
-	if ([elementName isEqualToString:INCLUDE] && [LABEL isEqualToString:[attributeDict objectForKey:TYPE]]) {
+	if ([elementName isEqualToString:INCLUDE] && [LABEL isEqualToString:attributeDict[TYPE]]) {
         // This is a reference to another element, will be resolved later, put a standby in place for now
         
-        ORImageLabelDeferredBinding *standby = [[ORImageLabelDeferredBinding alloc] initWithBoundComponentIdentifier:[[ORObjectIdentifier alloc] initWithStringId:[attributeDict objectForKey:REF]]
+        ORImageLabelDeferredBinding *standby = [[ORImageLabelDeferredBinding alloc] initWithBoundComponentIdentifier:[[ORObjectIdentifier alloc] initWithStringId:attributeDict[REF]]
                                                                                              enclosingObject:self.image];
         [self.depRegister addDeferredBinding:standby];
 	}
@@ -69,7 +69,7 @@
 - (void)endSensorLinkElement:(ORSensorLinkParser *)parser
 {
     if (parser.sensor) {
-        [self.depRegister.definition.sensorRegistry registerSensor:parser.sensor linkedToComponent:self.image property:@"name" sensorStatesMapping:parser.sensorStatesMapping];
+        [self.depRegister.definition.sensorRegistry registerSensor:parser.sensor linkedToComponent:self.image property:@"src" sensorStatesMapping:parser.sensorStatesMapping];
         
         // Adding all possible image names to definition allows cache to prefetch images if desired
         [[[parser.sensorStatesMapping stateValues] allObjects] enumerateObjectsUsingBlock:^(id imageName, NSUInteger idx, BOOL *stop) {

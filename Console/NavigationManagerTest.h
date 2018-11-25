@@ -19,10 +19,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
 
-@interface NavigationManagerTest : SenTestCase
+@interface NavigationManagerTest : XCTestCase
 
 /**
  * Tests that the NavigationManager initiliazes correctly with a valid Definition object.

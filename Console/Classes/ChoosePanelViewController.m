@@ -121,12 +121,12 @@
 {
 	LoginViewController *loginController = [[LoginViewController alloc] initWithController:self.controller delegate:self context:controllerRequest];
 	UINavigationController *loginNavController = [[UINavigationController alloc] initWithRootViewController:loginController];
-	[self presentModalViewController:loginNavController animated:YES];
+	[self presentViewController:loginNavController animated:YES completion:nil];
 }
 
 - (void)loginViewControllerDidCancelLogin:(LoginViewController *)controller
 {
-    [self dismissModalViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)loginViewController:(LoginViewController *)controller didProvideUserName:(NSString *)username password:(NSString *)password
@@ -141,7 +141,7 @@
     // TODO: we used to save here, is it OK not to, maybe need to save in dedicated MOC
     // [[ORConsoleSettingsManager sharedORConsoleSettingsManager] saveConsoleSettings];
     
-	[self dismissModalViewControllerAnimated:YES];
+	[self dismissViewControllerAnimated:YES completion:nil];
     
     [(ControllerRequest *)controller.context retry];
 }
@@ -162,7 +162,7 @@
 	[[NSNotificationCenter defaultCenter] postNotificationName:NotificationHideLoading object:nil];
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
+- (BOOL)shouldAutorotate {
 	return YES;
 }
 

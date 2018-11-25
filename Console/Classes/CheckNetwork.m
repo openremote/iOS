@@ -78,7 +78,7 @@
 
     NetworkStatus remoteHostReachability = [reachability currentReachabilityStatus];
 	if (remoteHostReachability == NotReachable) {
-		NSLog(@"checkIPAddress status is %ld", remoteHostReachability);
+		NSLog(@"checkIPAddress status is %ld", (long)remoteHostReachability);
 		@throw [CheckNetworkException exceptionWithTitle:@"Check controller ip address Fail" message:@"Your server address is wrong, please check your settings"];
 	}
 }

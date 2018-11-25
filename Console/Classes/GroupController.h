@@ -28,17 +28,14 @@
 /**
  * Control presentation of group view with group model data.
  */
-@interface GroupController : UIViewController {
-	PaginationController *portraitPaginationController;
-	PaginationController *landscapePaginationController;
-	ErrorViewController *errorViewController;
-	UIInterfaceOrientation currentOrientation;
-}
+@interface GroupController : UIViewController
+
+@property (nonatomic, strong) ORGroup *group;
 
 /**
- * Construct group controller with group model data.
+ * Construct group controller with group model data and image cache.
  */
-- (id)initWithGroup:(ORGroup *)newGroup parentViewController:(UIViewController *)aVC;
+- (id)initWithImageCache:(ImageCache *)aCache group:(ORGroup *)newGroup;
 
 /**
  * Start polling of groupController's rendering screenView.
@@ -77,8 +74,6 @@
  */
 - (CGRect)getFullFrame;
 
-@property (nonatomic, strong) ORGroup *group;
-
-@property (nonatomic, weak) ImageCache *imageCache;
+@property (nonatomic, weak, readonly) ImageCache *imageCache;
 
 @end

@@ -35,48 +35,48 @@
 - (void)testMatchingVersionsEmptyWhenControllerReportsNoVersionAtAll
 {
     CapabilitiesWithSettableConsoleVersions *capabilities = [[CapabilitiesWithSettableConsoleVersions alloc] initWithSupportedVersions:nil apiSecurities:nil capabilities:nil];
-    STAssertEquals([[capabilities matchingVersions] count], (NSUInteger)0, @"No versions should match");
+    XCTAssertEqual([[capabilities matchingVersions] count], (NSUInteger)0, @"No versions should match");
 }
 
 - (void)testMatchingVersionsEmptyWhenControllerReportsNoVersionSupportedByConsole
 {
     CapabilitiesWithSettableConsoleVersions *capabilities = [[CapabilitiesWithSettableConsoleVersions alloc] initWithSupportedVersions:@[@"2.3", @"2.5"] apiSecurities:nil capabilities:nil];
-    STAssertEquals([[capabilities matchingVersions] count], (NSUInteger)0, @"No versions should match");
+    XCTAssertEqual([[capabilities matchingVersions] count], (NSUInteger)0, @"No versions should match");
 }
 
 - (void)testMatchingVersionsIdenticalToReportedVersionsWhenControllerReportsExactSameVersionsFromConsole
 {
     NSArray *expectedVersions = @[@"2.1", @"2.0"];
     CapabilitiesWithSettableConsoleVersions *capabilities = [[CapabilitiesWithSettableConsoleVersions alloc] initWithSupportedVersions:expectedVersions apiSecurities:nil capabilities:nil];
-    STAssertEqualObjects([capabilities matchingVersions], expectedVersions, @"All versions should match");
+    XCTAssertEqualObjects([capabilities matchingVersions], expectedVersions, @"All versions should match");
 }
 
 - (void)testMatchingVersionsIdenticalToOrderedReportedVersionsWhenControllerReportsExactSameVersionsFromConsoleButInDifferentOrder
 {
     NSArray *expectedVersions = @[@"2.1", @"2.0"];
     CapabilitiesWithSettableConsoleVersions *capabilities = [[CapabilitiesWithSettableConsoleVersions alloc] initWithSupportedVersions:@[@"2.0", @"2.1"] apiSecurities:nil capabilities:nil];
-    STAssertEqualObjects([capabilities matchingVersions], expectedVersions, @"All versions should match");
+    XCTAssertEqualObjects([capabilities matchingVersions], expectedVersions, @"All versions should match");
 }
 
 - (void)testMatchingVersionsIdenticalToReportedVersionsWhenControllerReportsSupersetOfVersionsFromConsole
 {
     NSArray *expectedVersions = @[@"2.1", @"2.0"];
     CapabilitiesWithSettableConsoleVersions *capabilities = [[CapabilitiesWithSettableConsoleVersions alloc] initWithSupportedVersions:@[@"2.0", @"2.1", @"2.2", @"1.9"] apiSecurities:nil capabilities:nil];
-    STAssertEqualObjects([capabilities matchingVersions], expectedVersions, @"All console versions should match");
+    XCTAssertEqualObjects([capabilities matchingVersions], expectedVersions, @"All console versions should match");
 }
 
 - (void)testMatchingVersionCorrectWhenControllerReportsOneOfTheVersionsFromConsole
 {
     NSArray *expectedVersions = @[@"2.1"];
     CapabilitiesWithSettableConsoleVersions *capabilities = [[CapabilitiesWithSettableConsoleVersions alloc] initWithSupportedVersions:expectedVersions apiSecurities:nil capabilities:nil];
-    STAssertEqualObjects([capabilities matchingVersions], expectedVersions, @"Reported version should match");
+    XCTAssertEqualObjects([capabilities matchingVersions], expectedVersions, @"Reported version should match");
 }
 
 - (void)testMatchingVersionCorrectWhenControllerReportsMultipleVersionWithOnlyOneOfTheVersionsFromConsole
 {
     NSArray *expectedVersions = @[@"2.1"];
     CapabilitiesWithSettableConsoleVersions *capabilities = [[CapabilitiesWithSettableConsoleVersions alloc] initWithSupportedVersions:@[@"2.2", @"2.1"] apiSecurities:nil capabilities:nil];
-    STAssertEqualObjects([capabilities matchingVersions], expectedVersions, @"Version in common should match");
+    XCTAssertEqualObjects([capabilities matchingVersions], expectedVersions, @"Version in common should match");
 }
 
 @end

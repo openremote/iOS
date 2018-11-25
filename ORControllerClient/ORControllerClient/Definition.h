@@ -182,4 +182,5 @@
  */
 @property (nonatomic, weak) NSObject<ORConsole> *console;
 
+@property (nonatomic, copy) NSString *dataHash;
 @end

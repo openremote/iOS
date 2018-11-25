@@ -56,10 +56,10 @@
    sensorStatesMapping:(ORSensorStatesMapping *)mapping
 {
     [super registerSensor:sensor];
-    NSMutableSet *components = [self._linksPerSensorId objectForKey:sensor.identifier];
+    NSMutableSet *components = self._linksPerSensorId[sensor.identifier];
     if (!components) {
         components = [NSMutableSet setWithCapacity:1];
-        [self._linksPerSensorId setObject:components forKey:sensor.identifier];
+        self._linksPerSensorId[sensor.identifier] = components;
     }
     NSSet *existingLinks = [components filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"component = %@ AND propertyName = %@", component, propertyName]];
     if ([existingLinks count]) {
@@ -70,17 +70,17 @@
 
 - (NSSet *)sensorLinksForSensorIdentifier:(ORObjectIdentifier *)sensorIdentifier
 {
-    return [NSSet setWithSet:[self._linksPerSensorId objectForKey:sensorIdentifier]];
+    return [NSSet setWithSet:self._linksPerSensorId[sensorIdentifier]];
 }
 
 - (void)updateWithSensorValues:(NSDictionary *)sensorValues
 {
     // Update properties of linked element
-    [sensorValues enumerateKeysAndObjectsUsingBlock:^(NSString *sensorId, id sensorValue, BOOL *stop) {
+    [sensorValues enumerateKeysAndObjectsUsingBlock:^(NSString *sensorId, id sensorValue, BOOL *stopSensorValues) {
         ORObjectIdentifier *sensorIdentifier = [[ORObjectIdentifier alloc] initWithStringId:sensorId];
         NSSet *sensorLinks = [self sensorLinksForSensorIdentifier:sensorIdentifier];
         
-        [sensorLinks enumerateObjectsUsingBlock:^(ORSensorLink *link, BOOL *stop) {
+        [sensorLinks enumerateObjectsUsingBlock:^(ORSensorLink *link, BOOL *stopSensorLinks) {
             // "Map" given sensor value according to defined sensor states
             NSString *mappedSensorValue = [link.sensorStatesMapping stateValueForName:sensorValue];
             // If no mapping, use received sensor value as is

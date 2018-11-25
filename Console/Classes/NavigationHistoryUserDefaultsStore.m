@@ -27,14 +27,12 @@
 #import "ORControllerClient/ORScreenOrGroupReference.h"
 #import "ScreenReferenceStack.h"
 
-#define kNavigationHistoryUserDefaultKey    @"NavigationHistory"
-
 @implementation NavigationHistoryUserDefaultsStore
 
 - (void)persistHistory:(ScreenReferenceStack *)history forDefinition:(Definition *)definition
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    [userDefaults setObject:[NSKeyedArchiver archivedDataWithRootObject:history] forKey:kNavigationHistoryUserDefaultKey];
+    [userDefaults setObject:[NSKeyedArchiver archivedDataWithRootObject:history] forKey:[self keyForDefinition:definition]];
     [userDefaults synchronize];
 }
 
@@ -43,8 +41,8 @@
     ScreenReferenceStack *navigationHistory;
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     
-    if ([userDefaults objectForKey:@"NavigationHistory"]) { // TODO: later this should include the identifier of the history, so we support multiple navigation stacks
-        navigationHistory = [NSKeyedUnarchiver unarchiveObjectWithData:[userDefaults objectForKey:kNavigationHistoryUserDefaultKey]];
+    if ([userDefaults objectForKey:[self keyForDefinition:definition]]) {
+        navigationHistory = [NSKeyedUnarchiver unarchiveObjectWithData:[userDefaults objectForKey:[self keyForDefinition:definition]]];
     } else {
         ORScreenOrGroupReference *startReference = nil;
         navigationHistory = [[ScreenReferenceStack alloc] initWithCapacity:50];
@@ -77,6 +75,13 @@
         }
     }
     return navigationHistory;
+}
+
+- (NSString *)keyForDefinition:(Definition *)definition
+{
+    NSString *string = [NSString stringWithFormat:@"NavigationHistory-%@", definition.dataHash];
+    NSLog(@"key %@", string);
+    return string;
 }
 
 @end

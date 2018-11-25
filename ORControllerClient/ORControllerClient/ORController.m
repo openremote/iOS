@@ -408,7 +408,7 @@
 
 - (void)sendValue:(float)value forSlider:(ORSlider *)sender
 {
-    [self controlForWidget:sender action:[NSString stringWithFormat:@"%f", value]];
+    [self controlForWidget:sender action:[NSString stringWithFormat:@"%d", (int)value]];
 }
 
 - (void)sendColor:(UIColor *)color forPicker:(ORColorPicker *)sender

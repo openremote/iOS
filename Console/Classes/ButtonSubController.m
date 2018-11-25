@@ -57,7 +57,7 @@
         /* Observing the frame so the displayed image can be resized to appear centered in the button */
         [uiButton addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:NULL];
         uiButton.titleLabel.font = [UIFont boldSystemFontOfSize:13];
-        uiButton.titleLabel.lineBreakMode = UILineBreakModeTailTruncation;
+        uiButton.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         [uiButton setTitle:self.button.label.text forState:UIControlStateNormal];
         self.view = uiButton;
     }

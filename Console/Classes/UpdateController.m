@@ -299,7 +299,7 @@
 #pragma mark call the delegate method which the the delegate implemented.
 - (void)didUpdate {
     NSLog(@">>UpdateController.didUpdate");
-//	[[NSNotificationCenter defaultCenter] removeObserver:self name:DefinitionUpdateDidFinishNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:DefinitionUpdateDidFinishNotification object:nil];
     NSLog(@"theDelegate %@", delegate);
 	if (delegate && [delegate respondsToSelector:@selector(didUpdate)]) {
 		[delegate performSelector:@selector(didUpdate)];
@@ -327,7 +327,6 @@
 -(void)dealloc
 {
     serverAutoDiscoveryController = nil;
-    self.imageCache = nil;
     [self removeObserver:self forKeyPath:@"imageCache"];
 }
 

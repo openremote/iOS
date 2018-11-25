@@ -40,7 +40,7 @@
     if (self) {
         self.layoutContainer = aLayoutContainer;
         self.imageCache = aCache;
-    }    
+    }
     return self;
 }
 

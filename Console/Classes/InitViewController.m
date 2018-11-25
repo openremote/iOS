@@ -37,7 +37,7 @@
 	//[[Definition sharedDefinition] setLoading:label];
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
+- (BOOL)shouldAutorotate {
 	return YES;
 }
 

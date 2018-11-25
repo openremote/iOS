@@ -20,7 +20,6 @@
  */
 
 #import "NSMutableURLRequest+ORAdditions.h"
-#import "NSStringAdditions.h"
 
 @implementation NSMutableURLRequest (ORAdditions)
 
@@ -28,7 +27,7 @@
 {
 	NSString *format = [NSString stringWithFormat:@"%@:%@", userName, password];
 	NSData *utf8Data = [format dataUsingEncoding:NSUTF8StringEncoding];
-	NSString *base64String = [NSString base64StringFromData:utf8Data length:[utf8Data length]];
+	NSString *base64String = [utf8Data base64EncodedStringWithOptions:0];
 	[self setValue:[NSString stringWithFormat:@"Basic %@", base64String] forHTTPHeaderField:@"Authorization"];
 }
 

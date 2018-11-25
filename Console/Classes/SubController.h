@@ -20,8 +20,8 @@
  */
 #import <Foundation/Foundation.h>
 
-@interface SubController : NSObject
+@interface SubController : UIViewController
 
-@property (nonatomic, readonly, strong) UIView *view;
+//@property (nonatomic, readonly, strong) UIView *view;
 
 @end

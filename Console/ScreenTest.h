@@ -20,10 +20,10 @@
  */
 #define USE_APPLICATION_UNIT_TEST 1
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import <UIKit/UIKit.h>
 
-@interface ScreenTest : SenTestCase {
+@interface ScreenTest : XCTestCase {
     
 }
 

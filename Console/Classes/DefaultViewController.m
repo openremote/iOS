@@ -32,6 +32,8 @@
 
 #import "NavigationManager.h"
 #import "ORScreenOrGroupReference.h"
+#import "AppDelegate.h"
+#import "UIViewController+ORAdditions.h"
 
 #define degreesToRadian(x) (M_PI * (x) / 180.0)
 
@@ -48,6 +50,9 @@
 @property (nonatomic, strong) NavigationManager *navigationManager;
 
 @property (nonatomic, weak) DefinitionManager *definitionManager;
+
+@property (nonatomic, assign) UIInterfaceOrientationMask defaultOrientationMask;
+
 
 @end
 
@@ -71,7 +76,7 @@
     if (self) {
         self.settingsManager = aSettingsManager;
         self.definitionManager = aDefinitionManager;
-        
+        self.defaultOrientationMask = UIInterfaceOrientationMaskAll;
 			self._delegate = delegate;
 			
 			//register notifications
@@ -79,6 +84,8 @@
 			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(populateSettingsView:) name:NotificationPopulateSettingsView object:nil];
 			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshView:) name:NotificationRefreshGroupsView object:nil];	
     }
+    [self loadView];
+
     return self;
 }
 
@@ -133,20 +140,40 @@
     // Navigation manager ensures that referenced group / screen exists if it returns a screen reference
     if (screenReference) {
         ORGroup *currentGroup = [definition findGroupByIdentifier:screenReference.groupIdentifier];
-        
-        GroupController *gc = [[GroupController alloc] initWithGroup:currentGroup parentViewController:self];
-        gc.imageCache = self.imageCache;
+
+        [self setDefaultOrientationFromGroup:currentGroup];
+
+        GroupController *gc = [[GroupController alloc] initWithImageCache:self.imageCache group:currentGroup];
         [self switchToGroupController:gc];
     } else {
         // Means no group with screen does exist
+        [self setDefaultOrientationFromGroup:nil];
         [self presentErrorViewController];
+    }
+}
+
+- (void)setDefaultOrientationFromGroup:(ORGroup *)group {
+    if (group) {
+        if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation)) {
+            if (group.portraitScreens.count) {
+                self.defaultOrientationMask = UIInterfaceOrientationMaskPortrait;
+            } else {
+                self.defaultOrientationMask = UIInterfaceOrientationMaskLandscape;
+            }
+        } else {
+            if (group.landscapeScreens.count) {
+                self.defaultOrientationMask = UIInterfaceOrientationMaskLandscape;
+            } else {
+                self.defaultOrientationMask = UIInterfaceOrientationMaskPortrait;
+            }
+        }
     }
 }
 
 - (void)initGroups {
     [self hideErrorViewController];
     [self hideInitViewController];
-	
+
     [self setDefinition:[self.settingsManager consoleSettings].selectedController.definition];
 }
 
@@ -200,11 +227,19 @@
         default:
             return;
     }
-    
+
     // Navigate based on destination, being assured that if not nil, it exists
     if (destination) {
-        [self navigateToGroup:[self._definition findGroupByIdentifier:destination.groupIdentifier]
-                     toScreen:[self._definition findScreenByIdentifier:destination.screenIdentifier]];
+        ORScreen *screen = [self._definition findScreenByIdentifier:destination.screenIdentifier];
+        ORGroup *group = [self._definition findGroupByIdentifier:destination.groupIdentifier];
+        if (screen.orientation == self.currentGroupController.currentScreen.orientation) {
+            [self navigateToGroup:group toScreen:screen];
+        } else {
+            DefaultViewController *dvc = [[DefaultViewController alloc] initWithSettingsManager:self.settingsManager definitionManager:self.definitionManager delegate:[UIApplication sharedApplication].delegate];
+            [dvc initGroups];
+            [dvc navigateToGroup:group toScreen:screen];
+            [((AppDelegate *) [UIApplication sharedApplication].delegate) replaceDefaultViewController:dvc];
+        }
     }
 }
 
@@ -219,13 +254,11 @@
 {
     // Going to another group
 	if (![group.identifier isEqual:[self.currentGroupController groupIdentifier]]) {
-		GroupController *targetGroupController = [[GroupController alloc] initWithGroup:group parentViewController:self];
-        targetGroupController.imageCache = self.imageCache;
-		
+        GroupController *targetGroupController = [[GroupController alloc] initWithImageCache:self.imageCache group:group];
         [self.currentGroupController stopPolling];
 		[self updateGlobalOrLocalTabbarViewToGroupController:targetGroupController];
 	}
-	
+
     // TODO: is next line really required ? Or should group controller / pagination controller take care of that ?
     ORScreen *targetScreen = [screen screenForOrientation:UIDeviceOrientationIsLandscape([[UIDevice currentDevice] orientation])?ORScreenOrientationLandscape:ORScreenOrientationPortrait];
 	return [self.currentGroupController switchToScreen:targetScreen];
@@ -236,20 +269,26 @@
 	if (self.settingsManager.consoleSettings.selectedController.password) {
 		LogoutHelper *logout = [[LogoutHelper alloc] init];
 		[logout requestLogout];
-	}	
+	}
 }
 
 // Version used by newer code using client library and authentication manager mechanism
 
-- (void)presentLoginViewWithDelegate:(id <LoginViewControllerDelegate>)delegate
+- (void)presentLoginViewWithDelegate:(id <LoginViewControllerDelegate>)delegate forController:(ORControllerConfig *)controller
 {
-    LoginViewController *loginController = [[LoginViewController alloc] initWithController:self.settingsManager.consoleSettings.selectedController
+    LoginViewController *loginController = [[LoginViewController alloc] initWithController:controller
                                                                                   delegate:delegate
                                                                                    context:NULL];
-	UINavigationController *loginNavController = [[UINavigationController alloc] initWithRootViewController:loginController];
-    
+    UINavigationController *loginNavController = [[UINavigationController alloc] initWithRootViewController:loginController];
+
     // If we are already presenting a VC (e.g. Settings), this one must present the login panel
-	[((self.presentedViewController)?self.presentedViewController:self) presentViewController:loginNavController animated:YES completion:NULL];
+    [((self.presentedViewController)?self.presentedViewController:self) presentViewController:loginNavController animated:YES completion:NULL];
+}
+
+
+- (void)presentLoginViewWithDelegate:(id <LoginViewControllerDelegate>)delegate
+{
+    [self presentLoginViewWithDelegate:delegate forController:self.settingsManager.consoleSettings.selectedController];
 }
 
 // Version used by legacy code, to eventually go away
@@ -260,14 +299,14 @@
                                                                                   delegate:self
                                                                                    context:[notification.userInfo objectForKey:kAuthenticationRequiredControllerRequest]];
 	UINavigationController *loginNavController = [[UINavigationController alloc] initWithRootViewController:loginController];
-	[self presentModalViewController:loginNavController animated:NO];
+	[self presentViewController:loginNavController animated:NO completion:nil];
 }
 
 - (void)populateSettingsView:(id)sender {
 	AppSettingController *settingController = [[AppSettingController alloc] initWithSettingsManager:self.settingsManager definitionManager:self.definitionManager];
     settingController.imageCache = self.imageCache;
 	UINavigationController *settingNavController = [[UINavigationController alloc] initWithRootViewController:settingController];
-	[self presentModalViewController:settingNavController animated:YES];
+	[self presentViewController:settingNavController animated:YES completion:nil];
 }
 
 - (void)refreshView:(id)sender {
@@ -275,9 +314,9 @@
 
 	if (self.currentGroupController) {
 		[self.currentGroupController stopPolling];
-        self.currentGroupController = nil;
+//        self.currentGroupController = nil;
 	}
-	
+
 	[self initGroups];
 	[[NSNotificationCenter defaultCenter] postNotificationName:NotificationHideLoading object:nil];
 }
@@ -294,7 +333,7 @@
 
 - (void)loginViewControllerDidCancelLogin:(LoginViewController *)controller
 {
-    [self dismissModalViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
 
 	[self._delegate updateDidFinish];
 }
@@ -307,40 +346,42 @@
     }
     orController.userName = username;
 	orController.password = password;
-    
+
     // TODO: we might not want to save here, maybe have a method to set this and save in dedicated MOC
     [self.settingsManager saveConsoleSettings];
-    
-	[self dismissModalViewControllerAnimated:YES];
-    
+
+	[self dismissViewControllerAnimated:YES completion:nil];
+
 	[self.currentGroupController stopPolling];
 	[[NSNotificationCenter defaultCenter] postNotificationName:NotificationShowLoading object:nil];
 	[self._delegate checkConfigAndUpdate];
-	[[NSNotificationCenter defaultCenter] postNotificationName:NotificationHideLoading object:nil];    
+	[[NSNotificationCenter defaultCenter] postNotificationName:NotificationHideLoading object:nil];
 }
 
 #pragma mark Rotation handling
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+- (BOOL)shouldAutorotate
 {
-    return YES;
+    // delegate rotation to the group controller
+    return self.currentGroupController != nil ? [self.currentGroupController shouldAutorotate] : YES;
 }
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    return self.currentGroupController != nil ? [self.currentGroupController supportedInterfaceOrientations] : self.defaultOrientationMask;
+}
+
 
 // Because this VC is installed at root, it needs to forward those messages to the VC it contains
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-	if ([self isLoadingViewGone]) {
-		[self.currentGroupController willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	} else {
+	if (![self isLoadingViewGone]) {
 		[initViewController willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 	}
 }
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
-    if ([self isLoadingViewGone]) {
-		[self.currentGroupController didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    } else {
+    if (![self isLoadingViewGone]) {
         [initViewController didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     }
 }
@@ -355,7 +396,7 @@
 - (void)presentGroupController:(GroupController *)groupController animated:(BOOL)flag
 {
     // At this stage, no animation support
-    
+
     [self switchToGroupController:groupController];
 }
 
@@ -409,6 +450,8 @@
         [self.view addSubview:gc.view];
         [gc didMoveToParentViewController:self];
     }
+    [self dismissViewControllerAnimated:YES completion:nil];
+    [UIViewController attemptRotationToDeviceOrientation];
 }
 
 #pragma mark -
@@ -441,7 +484,7 @@
     if ([self isLoadingViewGone]) {
 		[self.currentGroupController viewDidAppear:animated];
     }
-    
+
 	[self becomeFirstResponder];
 }
 

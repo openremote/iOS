@@ -32,10 +32,10 @@
 
 @end
 
-@interface ControllerDetailViewController : ORTableViewController <UITextFieldDelegate, UIAlertViewDelegate> {
-    
-}
+@interface ControllerDetailViewController : ORTableViewController <UITextFieldDelegate, UIAlertViewDelegate>
 
+
+@property (nonatomic, assign) BOOL creating;
 @property (nonatomic, strong) NSObject<ControllerDetailViewControllerDelegate> *delegate;
 
 - (id)initWithController:(ORControllerConfig *)aController;

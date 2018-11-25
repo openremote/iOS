@@ -66,7 +66,7 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             AppDelegate *delegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
             DefaultViewController *vc = delegate.defaultViewController;
-            [vc presentLoginViewWithDelegate:self];
+            [vc presentLoginViewWithDelegate:self forController:self.controller];
         });
         
         // As this code is executing in the background, it's safe to block here for some time
@@ -110,7 +110,9 @@
     AppDelegate *delegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
     DefaultViewController *vc = delegate.defaultViewController;
 
-    [vc dismissViewControllerAnimated:YES completion:^{
+    UIViewController *mainController = vc.presentedViewController.presentedViewController ? vc.presentedViewController.presentedViewController : vc.presentedViewController;
+
+    [mainController dismissViewControllerAnimated:YES completion:^{
         [self.loginCondition lock];
 //        self._credentials = [[ORUserPasswordCredential alloc] initWithUsername:username password:password];
         self.controller.userName = username;

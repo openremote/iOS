@@ -43,10 +43,13 @@
 #import "XMLEntity.h"
 
 #import "ORButtonParser_2_0_0.h"
+#import <CommonCrypto/CommonCrypto.h>
 
 // TODO: the parsing "factory" should be injected based on the configuration retrieved from the controller
 // TODO: note: the openremote tag presence is not checked, is this an issue ?
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
 @interface PanelDefinitionParser()
 
 @property (nonatomic, retain) DefinitionElementParserRegister *depRegistry;
@@ -93,9 +96,28 @@
     [xmlParser setDelegate:parser];
     [xmlParser parse];
     [self.depRegistry performDeferredBindings];
-    return parser.definition;
+
+    Definition *definition = parser.definition;
+    definition.dataHash = [self SHA1HashForData:definitionXMLData];
+    return definition;
+}
+
+- (NSString *)SHA1HashForData:(NSData *)data
+{
+    unsigned char md[CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1(data.bytes, data.length, md);
+    NSMutableString *output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
+
+    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++)
+    {
+        [output appendFormat:@"%02x", md[i]];
+    }
+
+    return output;
 }
 
 @synthesize depRegistry;
 
 @end
+
+#pragma clang diagnostic pop

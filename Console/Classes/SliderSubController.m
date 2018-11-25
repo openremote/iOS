@@ -305,7 +305,7 @@ CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     UILabel *tipText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
 	tipText.font = [UIFont systemFontOfSize:40];
 	tipText.backgroundColor = [UIColor clearColor];
-	tipText.textAlignment = UITextAlignmentCenter;
+	tipText.textAlignment = NSTextAlignmentCenter;
 	tipText.text = [NSString stringWithFormat:@"%d", [self sliderValue:uiSlider]];
 	[self.sliderTip addSubview:tipText];
 }

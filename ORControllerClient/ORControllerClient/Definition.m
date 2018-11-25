@@ -42,6 +42,7 @@
 #define kWebViewsKey        @"WebViews"
 #define kImageNamesKey      @"ImageNames"
 #define kSensorRegistryKey  @"SensorRegistry"
+#define kDataHashKey        @"DataHash"
 
 @interface Definition ()
 
@@ -365,6 +366,7 @@ TODO:
     [aCoder encodeObject:self._webViews forKey:kWebViewsKey];
     [aCoder encodeObject:self.imageNames forKey:kImageNamesKey];
     [aCoder encodeObject:self.sensorRegistry forKey:kSensorRegistryKey];
+    [aCoder encodeObject:self.dataHash forKey:kDataHashKey];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
@@ -381,6 +383,7 @@ TODO:
         self._webViews = [aDecoder decodeObjectForKey:kWebViewsKey];
         self.imageNames = [aDecoder decodeObjectForKey:kImageNamesKey];
         self.sensorRegistry = [aDecoder decodeObjectForKey:kSensorRegistryKey];
+        self.dataHash = [aDecoder decodeObjectForKey:kDataHashKey];
     }
     return self;
 }

@@ -78,7 +78,7 @@ static void * const SwitchSubControllerKVOContext = (void*)&SwitchSubControllerK
             UIImage *buttonImage = [[UIImage imageNamed:@"button.png"] stretchableImageWithLeftCapWidth:20 topCapHeight:29];
             [self.view setBackgroundImage:buttonImage forState:UIControlStateNormal];
             self.view.titleLabel.font = [UIFont boldSystemFontOfSize:13];
-            self.view.titleLabel.lineBreakMode = UILineBreakModeTailTruncation;
+            self.view.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
             [self updateSwitchUI];
         }
 

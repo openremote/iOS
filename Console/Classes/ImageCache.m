@@ -67,11 +67,9 @@
 - (void)dealloc
 {
     if (self.loadersQueue) {
-        dispatch_release(self.loadersQueue);
         self.loadersQueue = NULL;
     }
     if (self.serialQueue) {
-        dispatch_release(self.serialQueue);
         self.serialQueue = NULL;
     }
 }
@@ -79,7 +77,8 @@
 // TODO: will fail if not image -> should inform user about it -> return NO ? exception ?
 - (void)storeImage:(UIImage *)image named:(NSString *)name
 {
-    [UIImagePNGRepresentation(image) writeToFile:[self cacheFilePathForName:name] atomically:YES];
+    BOOL v = [UIImagePNGRepresentation(image) writeToFile:[self cacheFilePathForName:name] atomically:YES];
+    NSLog(v ? @"YES" : @"NO");
 }
 
 - (UIImage *)getImageNamed:(NSString *)name

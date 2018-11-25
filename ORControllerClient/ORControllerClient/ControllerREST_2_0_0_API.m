@@ -23,6 +23,7 @@
 #import "PanelIdentityListResponseHandler_2_0_0.h"
 #import "PanelLayoutResponseHandler_2_0_0.h"
 #import "SensorValuesResponseHandler_2_0_0.h"
+#import "ControlResponseHandler_2_0_0.h"
 #import "RetrieveResourceResponseHandler.h"
 #import "ORRESTCall_Private.h"
 #import "ORObjectIdentifier.h"
@@ -43,12 +44,14 @@
 @implementation ControllerREST_2_0_0_API
 
 // Encapsulate delegate in ORDataCapturingNSURLConnectionDelegate before passing to created connection
+// Handler is mandatory, otherwise authenticationManager can't be set and calls over HTTPS
+// or to a secured controller won't work.
 - (ORRESTCall *)callForRequest:(NSURLRequest *)request delegate:(ORResponseHandler *)handler
 {    
     handler.authenticationManager = self.authenticationManager;
     ORRESTCall *call = [[ORRESTCall alloc] initWithRequest:request handler:handler];
     [call start];
-    NSLog(@"Started call for request %@", request);
+//    NSLog(@"Started call for request %@", request);
     return call;
 }
 
@@ -88,7 +91,8 @@
                    withSuccessHandler:(void (^)(NSData *))successHandler
                          errorHandler:(void (^)(NSError *))errorHandler
 {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[baseURL URLByAppendingPathComponent:resourceName]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[[baseURL URLByAppendingPathComponent:@"/resources"]
+                                                                        URLByAppendingPathComponent:resourceName]];
     return [self callForRequest:request delegate:[[RetrieveResourceResponseHandler alloc] initWithSuccessHandler:successHandler errorHandler:errorHandler]];
 }
 
@@ -148,7 +152,7 @@
                                                                          URLByAppendingPathComponent:[widget.identifier stringValue]]
                                                                         URLByAppendingPathComponent:action]];
     [request setHTTPMethod:@"POST"];
-    return [self callForRequest:request delegate:nil]; // TODO: delegate
+    return [self callForRequest:request delegate:[[ControlResponseHandler_2_0_0 alloc] initWithSuccessHandler:successHandler errorHandler:errorHandler]];
 }
 
 - (ORRESTCall *)requestDevicesListAtBaseURL:(NSURL *)baseURL withSuccessHandler:(void (^)(NSArray *))successHandler errorHandler:(void (^)(NSError *))errorHandler

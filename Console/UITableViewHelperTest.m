@@ -26,18 +26,18 @@
 - (void)testIndexPathsGoingFromLessToMoreRows
 {
     NSArray *expectedArray = @[[NSIndexPath indexPathForRow:2 inSection:1], [NSIndexPath indexPathForRow:3 inSection:1]];
-    STAssertEqualObjects([UITableViewHelper indexPathsForRowCountGoingFrom:2 to:4 section:1], expectedArray, @"Rows 2 and 3 should be added");
+    XCTAssertEqualObjects([UITableViewHelper indexPathsForRowCountGoingFrom:2 to:4 section:1], expectedArray, @"Rows 2 and 3 should be added");
 }
 
 - (void)testIndexPahtsGoingFromMoreToLessRows
 {
     NSArray *expectedArray = @[[NSIndexPath indexPathForRow:2 inSection:1], [NSIndexPath indexPathForRow:3 inSection:1]];
-    STAssertEqualObjects([UITableViewHelper indexPathsForRowCountGoingFrom:4 to:2 section:1], expectedArray, @"Rows 2 and 3 should be removed");
+    XCTAssertEqualObjects([UITableViewHelper indexPathsForRowCountGoingFrom:4 to:2 section:1], expectedArray, @"Rows 2 and 3 should be removed");
 }
 
 - (void)testIndexPathsWhenNoChangeInRowCount
 {
-    STAssertEquals([[UITableViewHelper indexPathsForRowCountGoingFrom:2 to:2 section:1] count], (NSUInteger)0, @"Rows should no be changed");
+    XCTAssertEqual([[UITableViewHelper indexPathsForRowCountGoingFrom:2 to:2 section:1] count], (NSUInteger)0, @"Rows should no be changed");
 }
 
 @end

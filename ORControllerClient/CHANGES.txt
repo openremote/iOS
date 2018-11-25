@@ -1,3 +1,8 @@
+Version 0.7.1
+=============
+
+- Fixed : control commands do not work over HTTPS or with controllers requiring authentication.
+
 Version 0.7
 ===========
 

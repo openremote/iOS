@@ -29,7 +29,7 @@
         textField = [[UITextField alloc] initWithFrame:CGRectZero];
         textField.autocapitalizationType = UITextAutocapitalizationTypeNone;// no auto capitalization support
         textField.autocorrectionType = UITextAutocorrectionTypeNo;// no auto correction support
-        textField.textAlignment = UITextAlignmentRight;
+        textField.textAlignment = NSTextAlignmentRight;
         textField.clearButtonMode = UITextFieldViewModeWhileEditing;
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         [self.contentView addSubview:textField];

@@ -18,16 +18,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#import <WebKit/WebKit.h>
 #import "WebSubController.h"
 #import "ORControllerClient/ORWebView.h"
 #import "SensorStatusCache.h"
-#import "ORControllerClient/NSStringAdditions.h"
 
-static void * const WebSubControllerKVOContext = (void*)&WebSubControllerKVOContext;
+static void *const WebSubControllerKVOContext = (void *) &WebSubControllerKVOContext;
 
-@interface WebSubController()
+@interface WebSubController ()
 
-@property (nonatomic, readwrite, strong) UIView *view;
+@property (nonatomic, readwrite, strong) WKWebView *view;
 @property (weak, nonatomic, readonly) ORWebView *web;
 @property (nonatomic, strong) NSString *oldStatus;
 
@@ -37,49 +37,43 @@ static void * const WebSubControllerKVOContext = (void*)&WebSubControllerKVOCont
 
 @implementation WebSubController
 
-- (id)initWithImageCache:(ImageCache *)aCache component:(ORWidget *)aComponent
-{
+- (id)initWithImageCache:(ImageCache *)aCache component:(ORWidget *)aComponent {
     self = [super initWithImageCache:aCache component:aComponent];
     if (self) {
-        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-        self.view = webView;
+        self.view = [[WKWebView alloc] initWithFrame:CGRectZero];
         [self loadRequestForURL:self.web.src];
-        
+
         [self.web addObserver:self forKeyPath:@"src" options:NSKeyValueObservingOptionNew context:WebSubControllerKVOContext];
     }
-    
+
     return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [self.web removeObserver:self forKeyPath:@"src"];
 }
 
 
-- (ORWebView *)web
-{
-    return (ORWebView *)self.component;
+- (ORWebView *)web {
+    return (ORWebView *) self.component;
 }
 
-- (void)loadRequestForURL:(NSString *)url
-{
-	ORWebView *webModel = self.web;
-	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]];
-	
-	// If a username if provided in the config, use that for authentication
-	if (webModel.username != nil && ![@"" isEqualToString:webModel.username]) {
-		NSData *authData = [[NSString stringWithFormat:@"%@:%@", webModel.username, webModel.password] dataUsingEncoding:NSUTF8StringEncoding];
-		NSString *authString = [NSString base64StringFromData:authData length:[authData length]];
-		authString = [NSString stringWithFormat: @"Basic %@", authString];
-		[request setValue:authString forHTTPHeaderField:@"Authorization"];
-	}
-	
-	[(UIWebView *)self.view loadRequest:request];    
+- (void)loadRequestForURL:(NSString *)url {
+    ORWebView *webModel = self.web;
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]];
+
+    // If a username if provided in the config, use that for authentication
+    if (webModel.username != nil && ![@"" isEqualToString:webModel.username]) {
+        NSData *authData = [[NSString stringWithFormat:@"%@:%@", webModel.username, webModel.password] dataUsingEncoding:NSUTF8StringEncoding];
+        NSString *authString = [authData base64EncodedStringWithOptions:0];
+        authString = [NSString stringWithFormat:@"Basic %@", authString];
+        [request setValue:authString forHTTPHeaderField:@"Authorization"];
+    }
+
+    [self.view loadRequest:request];
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
-{
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (context == WebSubControllerKVOContext) {
         if ([@"src" isEqualToString:keyPath]) {
             dispatch_async(dispatch_get_main_queue(), ^{

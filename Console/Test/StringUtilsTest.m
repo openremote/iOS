@@ -19,11 +19,11 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import <UIKit/UIKit.h>
 #import "StringUtils.h"
 
-@interface StringUtilsTest : SenTestCase {
+@interface StringUtilsTest : XCTestCase {
 
 }
 
@@ -35,7 +35,7 @@
 //parse file name
 - (void) testParsefileNameFromString {
 	NSString *name = [StringUtils parsefileNameFromString:@"doc/panel.xml"];
-	STAssertTrue([@"panel.xml" isEqualToString:name], @"expected panel.xml, but %@",name);
+	XCTAssertTrue([@"panel.xml" isEqualToString:name], @"expected panel.xml, but %@",name);
 }
 
 @end

@@ -41,8 +41,8 @@ static void * const LabelSubControllerKVOContext = (void*)&LabelSubControllerKVO
         UILabel *uiLabel = [[UILabel alloc] initWithFrame:CGRectZero];
         uiLabel.backgroundColor = [UIColor clearColor];
         uiLabel.adjustsFontSizeToFitWidth = NO;
-        uiLabel.textAlignment = UITextAlignmentCenter;
-        uiLabel.lineBreakMode = UILineBreakModeWordWrap;
+        uiLabel.textAlignment = NSTextAlignmentCenter;
+        uiLabel.lineBreakMode = NSLineBreakByWordWrapping;
         uiLabel.numberOfLines = 50;
         uiLabel.text = self.label.text;
         

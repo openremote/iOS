@@ -30,7 +30,7 @@
 - (void)testPopOnEmptyStackReturnsNil
 {
     ScreenReferenceStack *stack = [[ScreenReferenceStack alloc] initWithCapacity:10];
-    STAssertNil([stack pop], @"Poping an empty stack should not return anything");
+    XCTAssertNil([stack pop], @"Poping an empty stack should not return anything");
 }
 
 - (void)testPushPopAndTop
@@ -41,16 +41,16 @@
     [stack push:ref];
     
     ORScreenOrGroupReference *topRef = [stack top];
-    STAssertNotNil(topRef, @"Should be able to consult object at top of the stack when one was pushed before");
-    STAssertEquals(topRef, ref, @"Object from top of stack should be one pushed before");
+    XCTAssertNotNil(topRef, @"Should be able to consult object at top of the stack when one was pushed before");
+    XCTAssertEqual(topRef, ref, @"Object from top of stack should be one pushed before");
     
     ORScreenOrGroupReference *poppedRef = [stack pop];
-    STAssertNotNil(poppedRef, @"Should be able to pop an object from a stack where one was pushed before");
-    STAssertEquals(poppedRef, ref, @"Object poped from stack should be one pushed before");
-    STAssertEquals(poppedRef, topRef, @"Object poped from stack should be one returned as top of stack");
+    XCTAssertNotNil(poppedRef, @"Should be able to pop an object from a stack where one was pushed before");
+    XCTAssertEqual(poppedRef, ref, @"Object poped from stack should be one pushed before");
+    XCTAssertEqual(poppedRef, topRef, @"Object poped from stack should be one returned as top of stack");
     
-    STAssertNil([stack pop], @"It should not be possible to pop a second object from the stack");
-    STAssertNil([stack top], @"Top of stack should return nil when it's empty");
+    XCTAssertNil([stack pop], @"It should not be possible to pop a second object from the stack");
+    XCTAssertNil([stack top], @"Top of stack should return nil when it's empty");
 }
 
 - (void)testStackBehavesAsFIFO
@@ -62,8 +62,8 @@
     ORScreenOrGroupReference *ref2 = [[ORScreenOrGroupReference alloc] initWithGroupIdentifier:[[ORObjectIdentifier alloc] initWithIntegerId:1]
                                                             screenIdentifier:[[ORObjectIdentifier alloc] initWithIntegerId:3]];
     [stack push:ref2];
-    STAssertEquals([stack pop], ref2, @"First poped object should be the last one pushed");
-    STAssertEquals([stack pop], ref1, @"Second poped object should be the first one pushed");
+    XCTAssertEqual([stack pop], ref2, @"First poped object should be the last one pushed");
+    XCTAssertEqual([stack pop], ref1, @"Second poped object should be the first one pushed");
 }
 
 - (void)testStackDiscardsItemWhenCapacityReached
@@ -77,9 +77,9 @@
     ORScreenOrGroupReference *ref2 = [[ORScreenOrGroupReference alloc] initWithGroupIdentifier:[[ORObjectIdentifier alloc] initWithIntegerId:1]
                                                             screenIdentifier:[[ORObjectIdentifier alloc] initWithIntegerId:3]];
     [stack push:ref2];
-    STAssertEquals([stack pop], ref2, @"First poped object should be the last one pushed");
-    STAssertEquals([stack pop], ref1, @"Second poped object should be the one pushed before");
-    STAssertNil([stack pop], @"First pushed object should have been discarded from stack");
+    XCTAssertEqual([stack pop], ref2, @"First poped object should be the last one pushed");
+    XCTAssertEqual([stack pop], ref1, @"Second poped object should be the one pushed before");
+    XCTAssertNil([stack pop], @"First pushed object should have been discarded from stack");
 }
 
 - (void)testNSCoding
@@ -95,12 +95,12 @@
     [stack push:ref2];
     
     NSData *encodedStack = [NSKeyedArchiver archivedDataWithRootObject:stack];
-    STAssertNotNil(encodedStack, @"Archived data should not be nil");
+    XCTAssertNotNil(encodedStack, @"Archived data should not be nil");
     ScreenReferenceStack *decodedStack = [NSKeyedUnarchiver unarchiveObjectWithData:encodedStack];
-    STAssertNotNil(decodedStack, @"Decoded object should not be nil");
+    XCTAssertNotNil(decodedStack, @"Decoded object should not be nil");
     
-    STAssertEqualObjects([decodedStack valueForKey:@"stack"], [stack valueForKey:@"stack"], @"Decoded stack's stack should be equal to original one");
-    STAssertEquals([decodedStack valueForKey:@"capacity"], [stack valueForKey:@"capacity"], @"Decoded stack's capacity should be equal to original one");
+    XCTAssertEqualObjects([decodedStack valueForKey:@"stack"], [stack valueForKey:@"stack"], @"Decoded stack's stack should be equal to original one");
+    XCTAssertEqual([decodedStack valueForKey:@"capacity"], [stack valueForKey:@"capacity"], @"Decoded stack's capacity should be equal to original one");
 }
 
 

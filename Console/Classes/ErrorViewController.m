@@ -20,6 +20,7 @@
  */
 #import "ErrorViewController.h"
 #import "NotificationConstant.h"
+#import "UIViewController+ORAdditions.h"
 
 @interface ErrorViewController ()
 
@@ -32,11 +33,12 @@
 - (id)initWithErrorTitle:(NSString *)title message:(NSString *)message
 {
 	if (self = [super initWithNibName: UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? @"ErrorViewController~iPad" : @"ErrorViewController~iPhone" bundle:nil]) {
-		UIToolbar* toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 44)];
+	    NSLog(@"%d", self.safeAreaTop);
+		UIToolbar* toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 44 + self.safeAreaTop)];
 		[toolbar setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
 
 		UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithTitle:@"Settings"
-                                                                 style:UIBarButtonItemStyleBordered
+                                                                 style:UIBarButtonItemStylePlain
                                                                 target:self
                                                                 action:@selector(gotoSettings:)];
 		[toolbar setItems:@[item]];
@@ -63,10 +65,13 @@
 }
 
 // Enable rotating of errorView.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+- (BOOL)shouldAutorotate
 {
 	return YES;
 }
 
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskAll;
+}
 
 @end

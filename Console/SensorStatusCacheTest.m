@@ -44,9 +44,9 @@
 {
     ORObjectIdentifier *sensorIdentifier = [[ORObjectIdentifier alloc] initWithIntegerId:1];
     [self.statusCache publishNewValue:@"Value1" forSensorIdentifier:sensorIdentifier];
-    STAssertEqualObjects([self.statusCache valueForSensorIdentifier:sensorIdentifier], @"Value1", @"Value should have been updated to Value1");
+    XCTAssertEqualObjects([self.statusCache valueForSensorIdentifier:sensorIdentifier], @"Value1", @"Value should have been updated to Value1");
     [self.statusCache publishNewValue:@"Value2" forSensorIdentifier:sensorIdentifier];
-    STAssertEqualObjects([self.statusCache valueForSensorIdentifier:sensorIdentifier], @"Value2", @"Value should have been updated to Value2");
+    XCTAssertEqualObjects([self.statusCache valueForSensorIdentifier:sensorIdentifier], @"Value2", @"Value should have been updated to Value2");
 }
 
 - (void)testReadingValueFromCacheAfterCacheCleaned
@@ -54,7 +54,7 @@
     ORObjectIdentifier *sensorIdentifier = [[ORObjectIdentifier alloc] initWithIntegerId:1];
     [self.statusCache publishNewValue:@"Value1" forSensorIdentifier:sensorIdentifier];
     [self.statusCache clearStatusCache];
-    STAssertNil([self.statusCache valueForSensorIdentifier:sensorIdentifier], @"Value should not be in cache after it was cleared");
+    XCTAssertNil([self.statusCache valueForSensorIdentifier:sensorIdentifier], @"Value should not be in cache after it was cleared");
 }
 
 @synthesize statusCache;

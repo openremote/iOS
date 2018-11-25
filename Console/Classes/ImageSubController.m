@@ -20,9 +20,7 @@
  */
 #import "ImageSubController.h"
 #import "ORControllerClient/ORImage.h"
-#import "SensorStatusCache.h"
 #import "ORImageView.h"
-#import "ORControllerClient/UIColor+ORAdditions.h"
 #import "ImageCache.h"
 
 static void * const ImageSubControllerKVOContext = (void*)&ImageSubControllerKVOContext;
@@ -86,7 +84,7 @@ static void * const ImageSubControllerKVOContext = (void*)&ImageSubControllerKVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if (context == ImageSubControllerKVOContext) {
-        if ([@"name" isEqualToString:keyPath]) {
+        if ([@"src" isEqualToString:keyPath]) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self setImageNamed:self.image.src];
             });

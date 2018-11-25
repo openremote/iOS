@@ -42,12 +42,11 @@
     if (self) {
         self.screen = aScreen;
         self.gestureRecognizers = [[NSMutableArray alloc] initWithCapacity:4];
-        [self setupGestureRecognizers];
     }
     return self;
 }
 
-- (void)dealoc
+- (void)dealloc
 {
     [self cleanupGestureRecognizers];
     [self stopPolling];
@@ -57,10 +56,11 @@
 }
 
 // Implement loadView to create a view hierarchy programmatically.
-- (void)loadView
-{
+- (void)viewDidLoad {
     self.screenSubController = [[ScreenSubController alloc] initWithImageCache:self.imageCache screen:self.screen];
-    self.view = self.screenSubController.view;    
+    [self addChildViewController:self.screenSubController];
+    [self.view addSubview:self.screenSubController.view];
+    [self setupGestureRecognizers];
 }
 
 - (void)startPolling

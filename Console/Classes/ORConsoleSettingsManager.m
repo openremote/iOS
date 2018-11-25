@@ -60,8 +60,8 @@
             // We add the public default controller to the list but we don't select it
             // For now, we let the user choose the controller to use
             // TODO: Final goal is use the local controller is auto-discovered, use the public one otherwise
-            ORControllerConfig *controller = [NSEntityDescription insertNewObjectForEntityForName:@"ORControllerConfig" inManagedObjectContext:self.managedObjectContext];
-            controller.primaryURL = @"http://controller.openremote.org/ipad/controller";
+            ORControllerConfig *controller = [NSEntityDescription insertNewObjectForEntityForName:@"ORController" inManagedObjectContext:self.managedObjectContext];
+            controller.primaryURL = @"http://demo.openremote.com:8688/controller";
             [consoleSettings addController:controller];
             
             [self saveConsoleSettings];

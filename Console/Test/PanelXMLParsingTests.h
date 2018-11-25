@@ -19,10 +19,10 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import <UIKit/UIKit.h>
 
-@interface PanelXMLParsingTests : SenTestCase {
+@interface PanelXMLParsingTests : XCTestCase {
 }
 
 @end

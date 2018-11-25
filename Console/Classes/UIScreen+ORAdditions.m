@@ -25,7 +25,7 @@
 + (CGRect)or_fullFrameForLandscapeOrientation:(BOOL)isLandscape
 {
     CGSize size = [UIScreen mainScreen].bounds.size;
-	return CGRectMake(0.0, 0.0, (isLandscape ? size.height : size.width), (isLandscape ? size.width : size.height));        
+    return CGRectMake(0.0, 0.0, size.width, size.height);
 }
 
 + (CGRect)or_fullFrameForInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation

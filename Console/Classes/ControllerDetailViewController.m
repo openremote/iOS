@@ -60,7 +60,6 @@
 
 // Used to indicate that the done button has been clicked -> cancel management because no target/action on back button
 @property (nonatomic, assign) BOOL doneAction;
-@property (nonatomic, assign) BOOL creating;
 @property (nonatomic, strong) NSUndoManager *previousUndoManager;
 @property (nonatomic, strong) UIColor *originalTextColor;
 
@@ -152,7 +151,10 @@
     self.passwordField.delegate = nil;
 
     if (!self.doneAction) {
-        [self.controller.managedObjectContext undo];        
+        if (!self.presentedViewController) {
+            // don't undo if login view controller is presented
+            [self.controller.managedObjectContext undo];
+        }
     }
     self.controller.managedObjectContext.undoManager = self.previousUndoManager;
     self.previousUndoManager = nil;
@@ -170,18 +172,18 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orControllerGroupMembersFetchStatusChanged:) name:kORControllerGroupMembersFetchingNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orControllerGroupMembersFetchStatusChanged:) name:kORControllerGroupMembersFetchFailedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orControllerGroupMembersFetchStatusChanged:) name:kORControllerGroupMembersFetchSucceededNotification object:nil];
     // We don't present a login panel when on this page, user can use "regular" fields to enter credentials
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orControllerGroupMembersFetchStatusChanged:) name:kORControllerGroupMembersFetchRequiresAuthenticationNotification object:nil];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orControllerCapabilitiesFetchStatusChanged:) name:kORControllerCapabilitiesFetchStatusChange object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orControllerPanelIdentitiesFetchStatusChanged:) name:kORControllerPanelIdentitiesFetchStatusChange object:nil];
-    
+
     self.doneAction = NO;
-    
+
     // Make sure we're delegate of text fields if they exist so we get values update
     if (self.urlField) {
         self.urlField.delegate = self;
@@ -195,21 +197,24 @@
 
     if (self.controller) {
         self.managedObjectContext = self.controller.managedObjectContext;
-        self.creating = NO;
-		self.title = [NSString stringWithFormat:@"Editing %@", self.controller.primaryURL];
-	} else {
+    } else {
         NSAssert(self.managedObjectContext, @"If no controller was specified, a managed object context must be");
-        self.controller = [NSEntityDescription insertNewObjectForEntityForName:@"ORControllerConfig" inManagedObjectContext:self.managedObjectContext];
-        self.creating = YES;
-		self.title = @"Add a Controller";
-	}
+        self.controller = [NSEntityDescription insertNewObjectForEntityForName:@"ORController" inManagedObjectContext:self.managedObjectContext];
+    }
+
+    if (self.creating) {
+        self.title = @"Add a Controller";
+    } else {
+        self.title = [NSString stringWithFormat:@"Editing %@", self.controller.primaryURL];
+    }
+
     self.previousUndoManager = self.managedObjectContext.undoManager;
     self.managedObjectContext.undoManager = [[NSUndoManager alloc] init];
     [self.managedObjectContext.undoManager beginUndoGrouping];
-    
+
     self.groupMembers = [self.controller.groupMembers allObjects];
     [self.controller addObserver:self forKeyPath:@"groupMembers" options:0 context:NULL];
-    
+
     [self.controller fetchCapabilities];
     [self.controller fetchPanels];
 }
@@ -222,7 +227,7 @@
     [super viewDidAppear:animated];
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+- (BOOL)shouldAutorotate
 {
     return YES;
 }
@@ -439,7 +444,7 @@
             l.font = [UIFont boldSystemFontOfSize:17];
             l.textColor = [UIColor redColor];
             l.backgroundColor = [UIColor clearColor];
-            l.textAlignment = UITextAlignmentRight;
+            l.textAlignment = NSTextAlignmentRight;
             [v addSubview:l];
             self.controllerErrorLabel = l;
             self.controllerSectionHeaderView = v;

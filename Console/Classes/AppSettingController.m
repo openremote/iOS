@@ -33,6 +33,8 @@
 #import "ORControllerGroupMembersFetchStatusIconProvider.h"
 #import "TableViewCellWithSelectionAndIndicator.h"
 #import "ImageCache.h"
+#import "UIDevice+ORAdditions.h"
+#import "PanelMatcher.h"
 
 @interface AppSettingController ()
 
@@ -131,7 +133,7 @@
                                                                                   delegate:self
                                                                                    context:context];
 	UINavigationController *loginNavController = [[UINavigationController alloc] initWithRootViewController:loginController];
-	[self presentModalViewController:loginNavController animated:NO];
+	[self presentViewController:loginNavController animated:NO completion:nil];
 }
 
 // Check if the section parameter indexPath specified is auto discovery section.
@@ -187,7 +189,7 @@
     
     UILabel *versionLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     versionLabel.text = [NSString stringWithFormat:@"OpenRemote iOS Console version %@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]];
-    versionLabel.textAlignment = UITextAlignmentCenter;
+    versionLabel.textAlignment = NSTextAlignmentCenter;
     versionLabel.font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
     versionLabel.textColor = [UIColor darkGrayColor];
     versionLabel.backgroundColor = [UIColor clearColor];
@@ -231,10 +233,11 @@
 {
     [self autodiscoverControllersIfRequired];
     [self fetchGroupMembersForAllControllers];
+    [self updatePanelIdentityView];
     [super viewDidAppear:animated];
 }
 
-// Updates panel identity view, but not persistes identity data into appSettings.plist.
+// Updates panel identity view, but not persists identity data into appSettings.plist.
 - (void)updatePanelIdentityView {
 	UITableView *tv = (UITableView *)self.view;
 	UITableViewCell *identityCell = [tv cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:PANEL_IDENTITY_SECTION]];
@@ -302,12 +305,12 @@
 #pragma mark Delegate method of UpdateController
 
 - (void)didUpdate {
-	[self dismissModalViewControllerAnimated:YES];
+	//[self dismissViewControllerAnimated:YES completion:nil];
 	[[NSNotificationCenter defaultCenter] postNotificationName:NotificationRefreshGroupsView object:nil];
 }
 
 - (void)didUseLocalCache:(NSString *)errorMessage {
-	[self dismissModalViewControllerAnimated:NO];
+	[self dismissViewControllerAnimated:NO completion:nil];
 	if ([errorMessage isEqualToString:@"401"]) {
 		[[NSNotificationCenter defaultCenter] postNotificationName:NotificationPopulateCredentialView object:nil];
 	} else {
@@ -316,7 +319,7 @@
 }
 
 - (void)didUpdateFail:(NSString *)errorMessage {
-	[self dismissModalViewControllerAnimated:NO];
+	[self dismissViewControllerAnimated:NO completion:nil];
 	if ([errorMessage isEqualToString:@"401"]) {
 		[[NSNotificationCenter defaultCenter] postNotificationName:NotificationPopulateCredentialView object:nil];
 	} else {
@@ -446,8 +449,9 @@
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
     if (indexPath.section == CONTROLLER_URLS_SECTION) {
-        ControllerDetailViewController *cdvc = [[ControllerDetailViewController alloc] initWithController:((ORControllerConfig *)[self.settingsManager.consoleSettings.controllers objectAtIndex:indexPath.row])];
+        ControllerDetailViewController *cdvc = [[ControllerDetailViewController alloc] initWithController:((ORControllerConfig *) self.settingsManager.consoleSettings.controllers[indexPath.row])];
         cdvc.delegate = self;
+        cdvc.creating = NO;
 		[[self navigationController] pushViewController:cdvc animated:YES];
     }
 }
@@ -480,6 +484,7 @@
 	if ([self isAddCustomServerRow:indexPath]) {
         ControllerDetailViewController *cdvc = [[ControllerDetailViewController alloc] initWithManagedObjectContext:self.settingsManager.managedObjectContext];
         cdvc.delegate = self;
+        cdvc.creating = YES;
 		[[self navigationController] pushViewController:cdvc animated:YES];
 		return;
 	} else if (indexPath.section == PANEL_IDENTITY_SECTION) {
@@ -542,7 +547,7 @@
 	} 
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
+- (BOOL)shouldAutorotate {
 	return YES;
 }
 
@@ -566,11 +571,14 @@
 
 - (void)didDeleteController:(ORControllerConfig *)controller
 {
+    [CATransaction begin];
+    [CATransaction setCompletionBlock:^{
+        NSUInteger controllerIndex = [self.settingsManager.consoleSettings.controllers indexOfObject:controller];
+        [self.settingsManager.consoleSettings removeControllerAtIndex:controllerIndex];
+        [self.tableView deleteRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:controllerIndex inSection:CONTROLLER_URLS_SECTION]] withRowAnimation:UITableViewRowAnimationFade];
+    }];
     [self.navigationController popViewControllerAnimated:YES];
-
-    NSUInteger controllerIndex = [self.settingsManager.consoleSettings.controllers indexOfObject:controller];
-    [self.settingsManager.consoleSettings removeControllerAtIndex:controllerIndex];
-    [self.tableView deleteRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:controllerIndex inSection:CONTROLLER_URLS_SECTION]] withRowAnimation:UITableViewRowAnimationFade];
+    [CATransaction commit];
 }
 
 - (void)didFailToAddController
@@ -599,10 +607,15 @@
         // If there is only one panel available, it is automatically selected.
         UITableViewCell *identityCell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:PANEL_IDENTITY_SECTION]];
         if (panels.count == 1) {
-            self.settingsManager.consoleSettings.selectedController.selectedPanelIdentity = [panels objectAtIndex:0];
+            self.settingsManager.consoleSettings.selectedController.selectedPanelIdentity = panels[0];
             identityCell.textLabel.text = self.settingsManager.consoleSettings.selectedController.selectedPanelIdentity;
         } else {
-            if (![panels containsObject:self.settingsManager.consoleSettings.selectedController.selectedPanelIdentity]) {
+            // If there are more than one panel, try to select one by matching the panel identity with the device
+            NSArray<NSString *> *candidates = [PanelMatcher filterPanelIdentities:panels forDevicePrefix:[[UIDevice currentDevice] autoSelectPrefix]];
+            if (candidates.count == 1) {
+                self.settingsManager.consoleSettings.selectedController.selectedPanelIdentity = candidates[0];
+                identityCell.textLabel.text = self.settingsManager.consoleSettings.selectedController.selectedPanelIdentity;
+            } else if (![panels containsObject:self.settingsManager.consoleSettings.selectedController.selectedPanelIdentity]) {
                 self.settingsManager.consoleSettings.selectedController.selectedPanelIdentity = nil;
                 identityCell.textLabel.text = @"None";
             }
@@ -617,7 +630,7 @@
     // TODO: Is this still required ?
     [[NSNotificationCenter defaultCenter] postNotificationName:NotificationHideLoading object:nil];
 
-    [self dismissModalViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)loginViewController:(LoginViewController *)controller didProvideUserName:(NSString *)username password:(NSString *)password
@@ -638,7 +651,7 @@
     // TODO: we might not want to save here, maybe have a method to set this and save in dedicated MOC
     [self.settingsManager saveConsoleSettings];
     
-	[self dismissModalViewControllerAnimated:YES];
+	[self dismissViewControllerAnimated:YES completion:nil];
     
     if ([context isMemberOfClass:[ControllerRequest class]]) {
         [(ControllerRequest *)controller.context retry];

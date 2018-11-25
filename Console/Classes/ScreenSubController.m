@@ -29,7 +29,7 @@
 
 @interface ScreenSubController() 
 
-@property (nonatomic, readwrite, strong) UIView *view;
+@property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) ORScreen *screen;
 @property (nonatomic, strong) NSMutableArray *layoutContainers;
 
@@ -64,6 +64,7 @@
     self.layoutContainers = [NSMutableArray arrayWithCapacity:[self.screen.layouts count]];
     for (ORLayoutContainer *layout in self.screen.layouts) {
         LayoutContainerSubController *ctrl = [[[LayoutContainerSubController subControllerClassForModelObject:layout] alloc] initWithImageCache:self.imageCache layoutContainer:layout];
+        [self addChildViewController:ctrl];
         [self.view addSubview:ctrl.view];
         [self.layoutContainers addObject:ctrl];
     }
@@ -71,19 +72,13 @@
 
 - (void)createView
 {
-    int screenBackgroundImageViewWidth = 0;
-    int screenBackgroundImageViewHeight = 0;
+    int screenBackgroundImageViewWidth = (int) [UIScreen mainScreen].bounds.size.width;
+    int screenBackgroundImageViewHeight = (int) [UIScreen mainScreen].bounds.size.height;
     
-    if (self.screen.orientation == ORScreenOrientationLandscape) {
-        screenBackgroundImageViewWidth = [UIScreen mainScreen].bounds.size.height;
-        screenBackgroundImageViewHeight = [UIScreen mainScreen].bounds.size.width;
-    } else {
-        screenBackgroundImageViewWidth = [UIScreen mainScreen].bounds.size.width;
-        screenBackgroundImageViewHeight = [UIScreen mainScreen].bounds.size.height;
-    }
-
-    self.view = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, screenBackgroundImageViewWidth, screenBackgroundImageViewHeight)];
-    [self.view setUserInteractionEnabled:YES];
+    self.view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, screenBackgroundImageViewWidth, screenBackgroundImageViewHeight)];
+    self.imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, screenBackgroundImageViewWidth, screenBackgroundImageViewHeight)];
+    [self.view addSubview:self.imageView];
+//    [self.view setUserInteractionEnabled:YES];
     self.view.backgroundColor = [UIColor blackColor];
 
 	if (self.screen.background.image.src) {
@@ -105,7 +100,7 @@
         return;
     }
 
-    UIImageView *backgroundImageView = (UIImageView *)self.view;
+    UIImageView *backgroundImageView = self.imageView;
     CGFloat viewWidth = backgroundImageView.bounds.size.width;
     CGFloat viewHeight = backgroundImageView.bounds.size.height;
 
@@ -170,8 +165,8 @@
                 height = backgroundImage.size.height;
             }
 
-            CGFloat xEmptySpace = MAX(0.0, viewWidth - backgroundImage.size.width);
-            CGFloat yEmptySpace = MAX(0.0, viewHeight - backgroundImage.size.height);
+            CGFloat xEmptySpace = MAX(0, viewWidth - backgroundImage.size.width);
+            CGFloat yEmptySpace = MAX(0, viewHeight - backgroundImage.size.height);
             
             drawRect = CGRectMake(xEmptySpace * (self.screen.background.position.x / 100.0),
                                   yEmptySpace * (self.screen.background.position.y / 100.0),
@@ -187,13 +182,21 @@
         [backgroundImageView setImage:[ClippedUIImage imageFromImage:image size:backgroundImageView.bounds.size sourceRect:drawRect]];
     } else {
         // fillscreen is true
-        [backgroundImageView setFrame:CGRectMake(0, 0, viewWidth, viewHeight)];
-        [backgroundImageView setImage:backgroundImage];
-        [backgroundImageView sizeToFit];
+        backgroundImageView.frame = CGRectMake(0, 0, viewWidth, viewHeight);
+        backgroundImageView.image = backgroundImage;
+        backgroundImageView.contentMode = UIViewContentModeScaleToFill;
     }
 }
 
-@synthesize view;
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator {
+    self.view.frame = CGRectMake(0, 0, size.width, size.height);
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+    UIView *parentView = self.parentViewController.view;
+    self.view.frame = CGRectMake(0, 0, parentView.bounds.size.width, parentView.bounds.size.height);
+}
+
 @synthesize screen;
 @synthesize layoutContainers;
 

@@ -36,6 +36,7 @@
 #define kHasLongPressCommandKey    @"HasLongPressCommand"
 #define kHasLongReleaseCommandKey  @"HasLongReleaseCommand"
 #define kLongPressDelayKey         @"LongPressDelay"
+#define kNavigationKey             @"Navigation"
 
 #define kMinimumRepeatDelay 100
 #define kMinimumLongPressDelay  250
@@ -161,6 +162,7 @@
     [aCoder encodeBool:self.hasLongPressCommand forKey:kHasLongPressCommandKey];
     [aCoder encodeBool:self.hasLongReleaseCommand forKey:kHasLongReleaseCommandKey];
     [aCoder encodeInteger:self.longPressDelay forKey:kLongPressDelayKey];
+    [aCoder encodeObject:self.navigation forKey:kNavigationKey];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
@@ -176,6 +178,7 @@
         self.hasLongPressCommand = [aDecoder decodeBoolForKey:kHasLongPressCommandKey];
         self.hasLongReleaseCommand = [aDecoder decodeBoolForKey:kHasLongReleaseCommandKey];
         self.longPressDelay = [aDecoder decodeIntegerForKey:kLongPressDelayKey];
+        self.navigation = [aDecoder decodeObjectForKey:kNavigationKey];
     }
     return self;
 }

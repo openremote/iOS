@@ -22,8 +22,6 @@
 #import "ClippedUIImageViewTest.h"
 #import "ClippedUIImage.h"
 
-static NSString *assertImageWidthString = @"expected image width is %f, but actual width is %f";
-static NSString *assertImageHeightString = @"expected image height is %f, but actual height is %f";
 
 @implementation ClippedUIImageViewTest
 
@@ -68,12 +66,12 @@ static NSString *assertImageHeightString = @"expected image height is %f, but ac
 	uiImage = [self readUIImage:@"500X500"];
 	float expectedOriginalImageWidth = 500.0;
 	float expectedOriginalImageHeight = 500.0;
-	STAssertTrue(uiImage.size.width == expectedOriginalImageWidth, assertImageWidthString, expectedOriginalImageWidth, uiImage.size.width);
-	STAssertTrue(uiImage.size.height == expectedOriginalImageHeight, assertImageHeightString, expectedOriginalImageHeight, uiImage.size.height);
+	XCTAssertTrue(uiImage.size.width == expectedOriginalImageWidth, @"expected image width is %f, but actual width is %f", expectedOriginalImageWidth, uiImage.size.width);
+	XCTAssertTrue(uiImage.size.height == expectedOriginalImageHeight, "expected image height is %f, but actual height is %f", expectedOriginalImageHeight, uiImage.size.height);
     /*
 	UIImageView *newUIImageView = [UIViewUtil clippedUIImageViewWith:uiImage dependingOnUIView:uiView uiImageAlignToUIViewPattern:IMAGE_ABSOLUTE_ALIGN_TO_VIEW isUIImageFillUIView:NO];
-	STAssertTrue(newUIImageView.image.size.width == uiView.frame.size.width, assertImageWidthString, uiView.frame.size.width, newUIImageView.image.size.width);
-	STAssertTrue(newUIImageView.image.size.height == uiView.frame.size.height, assertImageHeightString, uiView.frame.size.height, newUIImageView.image.size.height);
+	STAssertTrue(newUIImageView.image.size.width == uiView.frame.size.width, @"expected image width is %f, but actual width is %f", uiView.frame.size.width, newUIImageView.image.size.width);
+	STAssertTrue(newUIImageView.image.size.height == uiView.frame.size.height, "expected image height is %f, but actual height is %f", uiView.frame.size.height, newUIImageView.image.size.height);
      */
 }
 
@@ -85,12 +83,12 @@ static NSString *assertImageHeightString = @"expected image height is %f, but ac
 	uiImage = [self readUIImage:@"500X480"];
 	float expectedOriginalImageWidth = 500.0;
 	float expectedOriginalImageHeight = 480.0;
-	STAssertTrue(uiImage.size.width == expectedOriginalImageWidth, assertImageWidthString, expectedOriginalImageWidth, uiImage.size.width);
-	STAssertTrue(uiImage.size.height == expectedOriginalImageHeight, assertImageHeightString, expectedOriginalImageHeight, uiImage.size.height);
+	XCTAssertTrue(uiImage.size.width == expectedOriginalImageWidth, @"expected image width is %f, but actual width is %f", expectedOriginalImageWidth, uiImage.size.width);
+	XCTAssertTrue(uiImage.size.height == expectedOriginalImageHeight, "expected image height is %f, but actual height is %f", expectedOriginalImageHeight, uiImage.size.height);
     /*
 	UIImageView *newUIImageView = [UIViewUtil clippedUIImageViewWith:uiImage dependingOnUIView:uiView uiImageAlignToUIViewPattern:IMAGE_ABSOLUTE_ALIGN_TO_VIEW isUIImageFillUIView:NO];
-	STAssertTrue(newUIImageView.image.size.width == uiView.frame.size.width, assertImageWidthString, uiView.frame.size.width, newUIImageView.image.size.width);
-	STAssertTrue(newUIImageView.image.size.height == uiView.frame.size.height, assertImageHeightString, uiView.frame.size.height, newUIImageView.image.size.height);
+	STAssertTrue(newUIImageView.image.size.width == uiView.frame.size.width, @"expected image width is %f, but actual width is %f", uiView.frame.size.width, newUIImageView.image.size.width);
+	STAssertTrue(newUIImageView.image.size.height == uiView.frame.size.height, "expected image height is %f, but actual height is %f", uiView.frame.size.height, newUIImageView.image.size.height);
      */
 }
 
@@ -102,12 +100,12 @@ static NSString *assertImageHeightString = @"expected image height is %f, but ac
 	uiImage = [self readUIImage:@"500X320"];
 	float expectedOriginalImageWidth = 500.0;
 	float expectedOriginalImageHeight = 320.0;
-	STAssertTrue(uiImage.size.width == expectedOriginalImageWidth, assertImageWidthString, expectedOriginalImageWidth, uiImage.size.width);
-	STAssertTrue(uiImage.size.height == expectedOriginalImageHeight, assertImageHeightString, expectedOriginalImageHeight, uiImage.size.height);
+	XCTAssertTrue(uiImage.size.width == expectedOriginalImageWidth, @"expected image width is %f, but actual width is %f", expectedOriginalImageWidth, uiImage.size.width);
+	XCTAssertTrue(uiImage.size.height == expectedOriginalImageHeight, "expected image height is %f, but actual height is %f", expectedOriginalImageHeight, uiImage.size.height);
     /*
 	UIImageView *newUIImageView = [UIViewUtil clippedUIImageViewWith:uiImage dependingOnUIView:uiView uiImageAlignToUIViewPattern:IMAGE_ABSOLUTE_ALIGN_TO_VIEW isUIImageFillUIView:NO];
-	STAssertTrue(newUIImageView.image.size.width == uiView.frame.size.width, assertImageWidthString, uiView.frame.size.width, newUIImageView.image.size.width);
-	STAssertTrue(newUIImageView.image.size.height == uiImage.size.height, assertImageHeightString, uiImage.size.height, newUIImageView.image.size.height);
+	STAssertTrue(newUIImageView.image.size.width == uiView.frame.size.width, @"expected image width is %f, but actual width is %f", uiView.frame.size.width, newUIImageView.image.size.width);
+	STAssertTrue(newUIImageView.image.size.height == uiImage.size.height, "expected image height is %f, but actual height is %f", uiImage.size.height, newUIImageView.image.size.height);
      */
 }
 
@@ -119,12 +117,12 @@ static NSString *assertImageHeightString = @"expected image height is %f, but ac
 	uiImage = [self readUIImage:@"320X500"];
 	float expectedOriginalImageWidth = 320.0;
 	float expectedOriginalImageHeight = 500.0;
-	STAssertTrue(uiImage.size.width == expectedOriginalImageWidth, assertImageWidthString, expectedOriginalImageWidth, uiImage.size.width);
-	STAssertTrue(uiImage.size.height == expectedOriginalImageHeight, assertImageHeightString, expectedOriginalImageHeight, uiImage.size.height);
+	XCTAssertTrue(uiImage.size.width == expectedOriginalImageWidth, @"expected image width is %f, but actual width is %f", expectedOriginalImageWidth, uiImage.size.width);
+	XCTAssertTrue(uiImage.size.height == expectedOriginalImageHeight, "expected image height is %f, but actual height is %f", expectedOriginalImageHeight, uiImage.size.height);
     /*
 	UIImageView *newUIImageView = [UIViewUtil clippedUIImageViewWith:uiImage dependingOnUIView:uiView uiImageAlignToUIViewPattern:IMAGE_ABSOLUTE_ALIGN_TO_VIEW isUIImageFillUIView:NO];
-	STAssertTrue(newUIImageView.image.size.width == uiView.frame.size.width, assertImageWidthString, uiView.frame.size.width, newUIImageView.image.size.width);
-	STAssertTrue(newUIImageView.image.size.height == uiView.frame.size.height, assertImageHeightString, uiView.frame.size.height, newUIImageView.image.size.height);
+	STAssertTrue(newUIImageView.image.size.width == uiView.frame.size.width, @"expected image width is %f, but actual width is %f", uiView.frame.size.width, newUIImageView.image.size.width);
+	STAssertTrue(newUIImageView.image.size.height == uiView.frame.size.height, "expected image height is %f, but actual height is %f", uiView.frame.size.height, newUIImageView.image.size.height);
      */
 }
 
@@ -136,12 +134,12 @@ static NSString *assertImageHeightString = @"expected image height is %f, but ac
 	uiImage = [self readUIImage:@"320X480"];
 	float expectedOriginalImageWidth = 320.0;
 	float expectedOriginalImageHeight = 480.0;
-	STAssertTrue(uiImage.size.width == expectedOriginalImageWidth, assertImageWidthString, expectedOriginalImageWidth, uiImage.size.width);
-	STAssertTrue(uiImage.size.height == expectedOriginalImageHeight, assertImageHeightString, expectedOriginalImageHeight, uiImage.size.height);
+	XCTAssertTrue(uiImage.size.width == expectedOriginalImageWidth, @"expected image width is %f, but actual width is %f", expectedOriginalImageWidth, uiImage.size.width);
+	XCTAssertTrue(uiImage.size.height == expectedOriginalImageHeight, "expected image height is %f, but actual height is %f", expectedOriginalImageHeight, uiImage.size.height);
     /*
 	UIImageView *newUIImageView = [UIViewUtil clippedUIImageViewWith:uiImage dependingOnUIView:uiView uiImageAlignToUIViewPattern:IMAGE_ABSOLUTE_ALIGN_TO_VIEW isUIImageFillUIView:NO];
-	STAssertTrue(newUIImageView.image.size.width == uiView.frame.size.width, assertImageWidthString, uiImage.size.width, newUIImageView.image.size.width);
-	STAssertTrue(newUIImageView.image.size.height == uiView.frame.size.height, assertImageHeightString, uiImage.size.height, newUIImageView.image.size.height);
+	STAssertTrue(newUIImageView.image.size.width == uiView.frame.size.width, @"expected image width is %f, but actual width is %f", uiImage.size.width, newUIImageView.image.size.width);
+	STAssertTrue(newUIImageView.image.size.height == uiView.frame.size.height, "expected image height is %f, but actual height is %f", uiImage.size.height, newUIImageView.image.size.height);
      */
 }
 
@@ -153,12 +151,12 @@ static NSString *assertImageHeightString = @"expected image height is %f, but ac
 	uiImage = [self readUIImage:@"320X320"];
 	float expectedOriginalImageWidth = 320.0;
 	float expectedOriginalImageHeight = 320.0;
-	STAssertTrue(uiImage.size.width == expectedOriginalImageWidth, assertImageWidthString, expectedOriginalImageWidth, uiImage.size.width);
-	STAssertTrue(uiImage.size.height == expectedOriginalImageHeight, assertImageHeightString, expectedOriginalImageHeight, uiImage.size.height);
+	XCTAssertTrue(uiImage.size.width == expectedOriginalImageWidth, @"expected image width is %f, but actual width is %f", expectedOriginalImageWidth, uiImage.size.width);
+	XCTAssertTrue(uiImage.size.height == expectedOriginalImageHeight, "expected image height is %f, but actual height is %f", expectedOriginalImageHeight, uiImage.size.height);
     /*
 	UIImageView *newUIImageView = [UIViewUtil clippedUIImageViewWith:uiImage dependingOnUIView:uiView uiImageAlignToUIViewPattern:IMAGE_ABSOLUTE_ALIGN_TO_VIEW isUIImageFillUIView:NO];
-	STAssertTrue(newUIImageView.image.size.width == uiView.frame.size.width, assertImageWidthString, uiView.frame.size.width, newUIImageView.image.size.width);
-	STAssertTrue(newUIImageView.image.size.height == uiImage.size.height, assertImageHeightString, uiImage.size.height, newUIImageView.image.size.height);
+	STAssertTrue(newUIImageView.image.size.width == uiView.frame.size.width, @"expected image width is %f, but actual width is %f", uiView.frame.size.width, newUIImageView.image.size.width);
+	STAssertTrue(newUIImageView.image.size.height == uiImage.size.height, "expected image height is %f, but actual height is %f", uiImage.size.height, newUIImageView.image.size.height);
      */
 }
 
@@ -170,12 +168,12 @@ static NSString *assertImageHeightString = @"expected image height is %f, but ac
 	uiImage = [self readUIImage:@"300X500"];
 	float expectedOriginalImageWidth = 300.0;
 	float expectedOriginalImageHeight = 500.0;
-	STAssertTrue(uiImage.size.width == expectedOriginalImageWidth, assertImageWidthString, expectedOriginalImageWidth, uiImage.size.width);
-	STAssertTrue(uiImage.size.height == expectedOriginalImageHeight, assertImageHeightString, expectedOriginalImageHeight, uiImage.size.height);
+	XCTAssertTrue(uiImage.size.width == expectedOriginalImageWidth, @"expected image width is %f, but actual width is %f", expectedOriginalImageWidth, uiImage.size.width);
+	XCTAssertTrue(uiImage.size.height == expectedOriginalImageHeight, "expected image height is %f, but actual height is %f", expectedOriginalImageHeight, uiImage.size.height);
     /*
 	UIImageView *newUIImageView = [UIViewUtil clippedUIImageViewWith:uiImage dependingOnUIView:uiView uiImageAlignToUIViewPattern:IMAGE_ABSOLUTE_ALIGN_TO_VIEW isUIImageFillUIView:NO];
-	STAssertTrue(newUIImageView.image.size.width == uiImage.size.width, assertImageWidthString, uiImage.size.width, newUIImageView.image.size.width);
-	STAssertTrue(newUIImageView.image.size.height == uiView.frame.size.height, assertImageHeightString, uiView.frame.size.height, newUIImageView.image.size.height);
+	STAssertTrue(newUIImageView.image.size.width == uiImage.size.width, @"expected image width is %f, but actual width is %f", uiImage.size.width, newUIImageView.image.size.width);
+	STAssertTrue(newUIImageView.image.size.height == uiView.frame.size.height, "expected image height is %f, but actual height is %f", uiView.frame.size.height, newUIImageView.image.size.height);
      */
 }
 
@@ -187,12 +185,12 @@ static NSString *assertImageHeightString = @"expected image height is %f, but ac
 	uiImage = [self readUIImage:@"300X480"];
 	float expectedOriginalImageWidth = 300.0;
 	float expectedOriginalImageHeight = 480.0;
-	STAssertTrue(uiImage.size.width == expectedOriginalImageWidth, assertImageWidthString, expectedOriginalImageWidth, uiImage.size.width);
-	STAssertTrue(uiImage.size.height == expectedOriginalImageHeight, assertImageHeightString, expectedOriginalImageHeight, uiImage.size.height);
+	XCTAssertTrue(uiImage.size.width == expectedOriginalImageWidth, @"expected image width is %f, but actual width is %f", expectedOriginalImageWidth, uiImage.size.width);
+	XCTAssertTrue(uiImage.size.height == expectedOriginalImageHeight, "expected image height is %f, but actual height is %f", expectedOriginalImageHeight, uiImage.size.height);
     /*
 	UIImageView *newUIImageView = [UIViewUtil clippedUIImageViewWith:uiImage dependingOnUIView:uiView uiImageAlignToUIViewPattern:IMAGE_ABSOLUTE_ALIGN_TO_VIEW isUIImageFillUIView:NO];
-	STAssertTrue(newUIImageView.image.size.width == uiImage.size.width, assertImageWidthString, uiImage.size.width, newUIImageView.image.size.width);
-	STAssertTrue(newUIImageView.image.size.height == uiView.frame.size.height, assertImageHeightString, uiView.frame.size.height, newUIImageView.image.size.height);
+	STAssertTrue(newUIImageView.image.size.width == uiImage.size.width, @"expected image width is %f, but actual width is %f", uiImage.size.width, newUIImageView.image.size.width);
+	STAssertTrue(newUIImageView.image.size.height == uiView.frame.size.height, "expected image height is %f, but actual height is %f", uiView.frame.size.height, newUIImageView.image.size.height);
      */
 }
 
@@ -204,12 +202,12 @@ static NSString *assertImageHeightString = @"expected image height is %f, but ac
 	uiImage = [self readUIImage:@"300X300"];
 	float expectedOriginalImageWidth = 300.0;
 	float expectedOriginalImageHeight = 300.0;
-	STAssertTrue(uiImage.size.width == expectedOriginalImageWidth, assertImageWidthString, expectedOriginalImageWidth, uiImage.size.width);
-	STAssertTrue(uiImage.size.height == expectedOriginalImageHeight, assertImageHeightString, expectedOriginalImageHeight, uiImage.size.height);
+	XCTAssertTrue(uiImage.size.width == expectedOriginalImageWidth, @"expected image width is %f, but actual width is %f", expectedOriginalImageWidth, uiImage.size.width);
+	XCTAssertTrue(uiImage.size.height == expectedOriginalImageHeight, "expected image height is %f, but actual height is %f", expectedOriginalImageHeight, uiImage.size.height);
     /*
 	UIImageView *newUIImageView = [UIViewUtil clippedUIImageViewWith:uiImage dependingOnUIView:uiView uiImageAlignToUIViewPattern:IMAGE_ABSOLUTE_ALIGN_TO_VIEW isUIImageFillUIView:NO];
-	STAssertTrue(newUIImageView.image.size.width == uiImage.size.width, assertImageWidthString, uiImage.size.width, newUIImageView.image.size.width);
-	STAssertTrue(newUIImageView.image.size.height == uiImage.size.height, assertImageHeightString, uiImage.size.height, newUIImageView.image.size.height);
+	STAssertTrue(newUIImageView.image.size.width == uiImage.size.width, @"expected image width is %f, but actual width is %f", uiImage.size.width, newUIImageView.image.size.width);
+	STAssertTrue(newUIImageView.image.size.height == uiImage.size.height, "expected image height is %f, but actual height is %f", uiImage.size.height, newUIImageView.image.size.height);
      */
 }
 

@@ -23,11 +23,11 @@
 #define IPHONE_SCREEN_WIDTH_FOR_TEST 320
 #define IPHONE_SCREEN_HEIGHT_FOR_TEST 480
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import <UIKit/UIKit.h>
 
 
-@interface ClippedUIImageViewTest : SenTestCase {
+@interface ClippedUIImageViewTest : XCTestCase {
 	UIImage *uiImage;
 	UIView *uiView;
 }

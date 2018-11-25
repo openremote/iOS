@@ -71,9 +71,7 @@
         [self.controller.controller requestPanelUILayout:self.controller.selectedPanelIdentity successHandler:^(Definition *definition) {
             self.controller.definition = definition;
             definition.console = self.console;
-            
-            NSLog(@"ImageCache %@", self.imageCache);
-            
+
             self.imageCache.loader = self.controller;
             
             [self postNotificationToMainThread:DefinitionUpdateDidFinishNotification];

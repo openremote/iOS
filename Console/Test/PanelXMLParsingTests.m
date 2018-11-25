@@ -61,16 +61,16 @@
 	NSMutableArray *cells = [[NSMutableArray alloc] init];
 	NSMutableArray *buts = [[NSMutableArray alloc] init];
 	for (ORGroup *group in groups) {
-		NSLog(@"group %@ has %d screen", group.name,group.screens.count);
+		NSLog(@"group %@ has %lu screen", group.name,(unsigned long)group.screens.count);
 		for (ORScreen *screen in group.screens) {
-			NSLog(@"screen %@ has %d layout", screen.name, screen.layouts.count);
+			NSLog(@"screen %@ has %lu layout", screen.name, (unsigned long)screen.layouts.count);
 			for (ORLayoutContainer *layout in screen.layouts) {
 				if([layout isKindOfClass:[ORGridLayoutContainer class]]){
 					NSLog(@"layout is grid ");
 					ORGridLayoutContainer *grid =(ORGridLayoutContainer *)layout;
-					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%d %d %d %d",grid.left,grid.top,grid.width,grid.height];
+					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%ld %ld %lu %lu",(long)grid.left,(long)grid.top,(unsigned long)grid.width,(unsigned long)grid.height];
 					NSString *expectedAttrs = @"20 20 300 400";
-					STAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
+					XCTAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
 					
 					for (ORGridCell *cell in grid.cells) {
 						[cells addObject:cell];
@@ -78,18 +78,18 @@
 							ORButton * but = (ORButton *)cell.widget;
 							[buts addObject:but];
 							NSString *expectedName = [[NSMutableString alloc] initWithFormat:@"%c",(char)65 + but_index];						
-							STAssertTrue([but.label.text isEqualToString:expectedName],@"expected %@, but %@",expectedName,but.label.text);
+							XCTAssertTrue([but.label.text isEqualToString:expectedName],@"expected %@, but %@",expectedName,but.label.text);
 							ORObjectIdentifier *expectedIdentifier = [[ORObjectIdentifier alloc] initWithIntegerId:(59 + but_index++)];
-							STAssertTrue([expectedIdentifier isEqual:but.identifier], @"expected %@, but %@", expectedIdentifier, but.identifier);
+							XCTAssertTrue([expectedIdentifier isEqual:but.identifier], @"expected %@, but %@", expectedIdentifier, but.identifier);
 							NSString *expectedDefaultImageName = nil;
 							if (but.unpressedImage) {
 								expectedDefaultImageName = [[NSMutableString alloc] initWithFormat:@"%c.png",(char)97 + image_index++];						
-								STAssertTrue([but.unpressedImage.src isEqualToString:expectedDefaultImageName],@"expected %@, but %@",expectedDefaultImageName,but.unpressedImage.src);
+								XCTAssertTrue([but.unpressedImage.src isEqualToString:expectedDefaultImageName],@"expected %@, but %@",expectedDefaultImageName,but.unpressedImage.src);
 							}
 							NSString *expectedPressedImageName = nil;
 							if (but.pressedImage) {
 								expectedPressedImageName = [[NSMutableString alloc] initWithFormat:@"%c.png",(char)97 + image_index++];
-								STAssertTrue([but.pressedImage.src isEqualToString:expectedPressedImageName],@"expected %@, but %@",expectedPressedImageName,but.pressedImage.src);
+								XCTAssertTrue([but.pressedImage.src isEqualToString:expectedPressedImageName],@"expected %@, but %@",expectedPressedImageName,but.pressedImage.src);
 							}
                         }
 					}
@@ -98,8 +98,8 @@
 		}
 	}
 	
-	NSLog(@"groups count = %d",[groups count]);
-	NSLog(@"screens count = %d",[screens count]);
+	NSLog(@"groups count = %lu",(unsigned long)[groups count]);
+	NSLog(@"screens count = %lu",(unsigned long)[screens count]);
 	NSLog(@"xml parse done");
 	
 	NSMutableArray *screenNames = [NSMutableArray arrayWithObjects:@"basement",@"floor",nil];
@@ -107,29 +107,29 @@
 	
 	//check screens
 	for (int i=0;i<screenNames.count;i++) {
-		STAssertTrue([[screenNames objectAtIndex:i] isEqualToString:[[screens objectAtIndex:i] name]],@"expected %@, but %@",[screenNames objectAtIndex:i],[[screens objectAtIndex:i] name]);
-		STAssertTrue([[[ORObjectIdentifier alloc] initWithIntegerId:i+5] isEqual:[[screens objectAtIndex:i] identifier]], @"expected %d, but %@",i+5,[[screens objectAtIndex:i] identifier]);
+		XCTAssertTrue([[screenNames objectAtIndex:i] isEqualToString:[[screens objectAtIndex:i] name]],@"expected %@, but %@",[screenNames objectAtIndex:i],[[screens objectAtIndex:i] name]);
+		XCTAssertTrue([[[ORObjectIdentifier alloc] initWithIntegerId:i+5] isEqual:[[screens objectAtIndex:i] identifier]], @"expected %d, but %@",i+5,[[screens objectAtIndex:i] identifier]);
 	}
 	
 	//check groups
 	for (int i=0;i<groupNames.count;i++) {
-		STAssertTrue([[groupNames objectAtIndex:i] isEqualToString:[[groups objectAtIndex:i] name]],@"expected %@, but %@",[groupNames objectAtIndex:i],[[groups objectAtIndex:i] name]);
-		STAssertTrue([[[ORObjectIdentifier alloc] initWithIntegerId:i+1] isEqual:[[groups objectAtIndex:i] identifier]], @"expected %d, but %@",i+1,[[groups objectAtIndex:i] identifier]);
+		XCTAssertTrue([[groupNames objectAtIndex:i] isEqualToString:[[groups objectAtIndex:i] name]],@"expected %@, but %@",[groupNames objectAtIndex:i],[[groups objectAtIndex:i] name]);
+		XCTAssertTrue([[[ORObjectIdentifier alloc] initWithIntegerId:i+1] isEqual:[[groups objectAtIndex:i] identifier]], @"expected %d, but %@",i+1,[[groups objectAtIndex:i] identifier]);
 	}
 	
-	STAssertTrue(cells.count== 11,@"expected %d, but %d",11,cells.count);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).colspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).rowspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:1]).rowspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:2]).colspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:3]).colspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:4]).colspan == 2,@"expected %d",2);
+	XCTAssertTrue(cells.count== 11,@"expected %d, but %lu",11,(unsigned long)cells.count);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).colspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).rowspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:1]).rowspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:2]).colspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:3]).colspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:4]).colspan == 2,@"expected %d",2);
 	ORScreen *screen1 = (ORScreen *)[screens objectAtIndex:0];
 //	NSString *ids = [[screen1 pollingComponentsIds] componentsJoinedByString:@","];
 //	STAssertTrue([@"" isEqualToString:ids],@"expected '', but %@",ids);
 	
 	
-	STAssertTrue(buts.count== 11,@"expected %d, but %d",11,buts.count);
+	XCTAssertTrue(buts.count== 11,@"expected %d, but %lu",11,(unsigned long)buts.count);
                       /*
 	STAssertTrue(((ORButton *)[buts objectAtIndex:0]).navigat.toScreen == 19,@"expected %d",19);
 	STAssertTrue(((ORButton *)[buts objectAtIndex:0]).hasPressCommand == NO,@"expected NO");
@@ -165,27 +165,27 @@
 	int state_value_index = 0;
 	NSMutableArray *cells = [[NSMutableArray alloc] init];
 	for (ORGroup *group in groups) {
-		NSLog(@"group %@ has %d screen", group.name,group.screens.count);
+		NSLog(@"group %@ has %lu screen", group.name,(unsigned long)group.screens.count);
 		for (ORScreen *screen in group.screens) {
-			NSLog(@"screen %@ has %d layout", screen.name, screen.layouts.count);
+			NSLog(@"screen %@ has %lu layout", screen.name, (unsigned long)screen.layouts.count);
 			for (ORLayoutContainer *layout in screen.layouts) {
 				if([layout isKindOfClass:[ORGridLayoutContainer class]]){
 					NSLog(@"layout is grid ");
 					ORGridLayoutContainer *grid =(ORGridLayoutContainer *)layout;
-					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%d %d %d %d",grid.left,grid.top,grid.width,grid.height];
+					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%ld %ld %lu %lu",(long)grid.left,(long)grid.top,(unsigned long)grid.width,(unsigned long)grid.height];
 					NSString *expectedAttrs = @"20 20 300 400";
-					STAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
+					XCTAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
 					
 					for (ORGridCell *cell in grid.cells) {
 						[cells addObject:cell];
 						if ([cell.widget isKindOfClass:[ORSwitch class]]) {
 							ORSwitch *theSwitch = (ORSwitch *)cell.widget;
 							ORObjectIdentifier *expectedIdentifier = [[ORObjectIdentifier alloc] initWithIntegerId:(59 + switch_index++)];
-							STAssertTrue([expectedIdentifier isEqual:theSwitch.identifier], @"expected %@, but %@", expectedIdentifier, theSwitch.identifier);
+							XCTAssertTrue([expectedIdentifier isEqual:theSwitch.identifier], @"expected %@, but %@", expectedIdentifier, theSwitch.identifier);
 							NSString *expectedOnName = [[NSMutableString alloc] initWithFormat:@"%c.png",(char)97 + state_index++];						
-							STAssertTrue([theSwitch.onImage.src isEqualToString:expectedOnName],@"expected %@, but %@",expectedOnName,theSwitch.onImage.src);
+							XCTAssertTrue([theSwitch.onImage.src isEqualToString:expectedOnName],@"expected %@, but %@",expectedOnName,theSwitch.onImage.src);
 							NSString *expectedOffName = [[NSMutableString alloc] initWithFormat:@"%c.png",(char)97 + state_index++];
-							STAssertTrue([theSwitch.offImage.src isEqualToString:expectedOffName],@"expected %@, but %@",expectedOffName,theSwitch.offImage.src);
+							XCTAssertTrue([theSwitch.offImage.src isEqualToString:expectedOffName],@"expected %@, but %@",expectedOffName,theSwitch.offImage.src);
 							
 							// assert sensor
                             /*
@@ -209,8 +209,8 @@
 		}
 	}
 	
-	NSLog(@"groups count = %d",[groups count]);
-	NSLog(@"screens count = %d",[screens count]);
+	NSLog(@"groups count = %lu",(unsigned long)[groups count]);
+	NSLog(@"screens count = %lu",(unsigned long)[screens count]);
 	NSLog(@"xml parse done");
 	
 	NSMutableArray *screenNames = [NSMutableArray arrayWithObjects:@"basement",@"floor",nil];
@@ -218,23 +218,23 @@
 	
 	//check screens
 	for (int i=0;i<screenNames.count;i++) {
-		STAssertTrue([[screenNames objectAtIndex:i] isEqualToString:[[screens objectAtIndex:i] name]],@"expected %@, but %@",[screenNames objectAtIndex:i],[[screens objectAtIndex:i] name]);
-		STAssertTrue([[[ORObjectIdentifier alloc] initWithIntegerId:i+5] isEqual:[[screens objectAtIndex:i] identifier]], @"expected %d, but %@", i+5, [[screens objectAtIndex:i] identifier]);
+		XCTAssertTrue([[screenNames objectAtIndex:i] isEqualToString:[[screens objectAtIndex:i] name]],@"expected %@, but %@",[screenNames objectAtIndex:i],[[screens objectAtIndex:i] name]);
+		XCTAssertTrue([[[ORObjectIdentifier alloc] initWithIntegerId:i+5] isEqual:[[screens objectAtIndex:i] identifier]], @"expected %d, but %@", i+5, [[screens objectAtIndex:i] identifier]);
 	}
 	
 	//check groups
 	for (int i=0;i<groupNames.count;i++) {
-		STAssertTrue([[groupNames objectAtIndex:i] isEqualToString:[[groups objectAtIndex:i] name]],@"expected %@, but %@",[groupNames objectAtIndex:i],[[groups objectAtIndex:i] name]);
-		STAssertTrue([[[ORObjectIdentifier alloc] initWithIntegerId:i+1] isEqual:[[groups objectAtIndex:i] identifier]], @"expected %d, but %@", i+1, [[groups objectAtIndex:i] identifier]);
+		XCTAssertTrue([[groupNames objectAtIndex:i] isEqualToString:[[groups objectAtIndex:i] name]],@"expected %@, but %@",[groupNames objectAtIndex:i],[[groups objectAtIndex:i] name]);
+		XCTAssertTrue([[[ORObjectIdentifier alloc] initWithIntegerId:i+1] isEqual:[[groups objectAtIndex:i] identifier]], @"expected %d, but %@", i+1, [[groups objectAtIndex:i] identifier]);
 	}
 	
-	STAssertTrue(cells.count== 5,@"expected %d, but %d",5,cells.count);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).colspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).rowspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:1]).rowspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:2]).colspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:3]).colspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:4]).colspan == 2,@"expected %d",2);
+	XCTAssertTrue(cells.count== 5,@"expected %d, but %lu",5,(unsigned long)cells.count);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).colspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).rowspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:1]).rowspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:2]).colspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:3]).colspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:4]).colspan == 2,@"expected %d",2);
 	ORScreen *screen1 = (ORScreen *)[screens objectAtIndex:0];
                       /*
     NSSet *ids = [NSSet setWithArray:[screen1 pollingComponentsIds]];
@@ -256,25 +256,25 @@
 	int switch_index = 0;
 	int state_value_index = 0;
 	for (ORGroup *group in groups) {
-		NSLog(@"group %@ has %d screen", group.name,group.screens.count);
+		NSLog(@"group %@ has %lu screen", group.name,(unsigned long)group.screens.count);
 		for (ORScreen *screen in group.screens) {
-			NSLog(@"screen %@ has %d layout", screen.name, screen.layouts.count);
+			NSLog(@"screen %@ has %lu layout", screen.name, (unsigned long)screen.layouts.count);
 			for (ORLayoutContainer *layout in screen.layouts) {
 				if([layout isKindOfClass:[ORAbsoluteLayoutContainer class]]){
 					NSLog(@"layout is absolute ");
 					ORAbsoluteLayoutContainer *abso =(ORAbsoluteLayoutContainer *)layout;
-					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%d %d %d %d",abso.left,abso.top,abso.width,abso.height];
+					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%ld %ld %lu %lu",(long)abso.left,(long)abso.top,(unsigned long)abso.width,(unsigned long)abso.height];
 					NSString *expectedAttrs = @"20 320 100 100";
-					STAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
+					XCTAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
 					
 					if ([abso.widget isKindOfClass:[ORSwitch class]]) {
 						ORSwitch *theSwitch = (ORSwitch *)abso.widget;
 						ORObjectIdentifier *expectedIdentifier = [[ORObjectIdentifier alloc] initWithIntegerId:(59 + switch_index++)];
-						STAssertTrue([expectedIdentifier isEqual:theSwitch.identifier], @"expected %@, but %@", expectedIdentifier, theSwitch.identifier);
+						XCTAssertTrue([expectedIdentifier isEqual:theSwitch.identifier], @"expected %@, but %@", expectedIdentifier, theSwitch.identifier);
 						NSString *expectedOnName = [[NSMutableString alloc] initWithFormat:@"%c.png",(char)97 + state_index++];						
-						STAssertTrue([theSwitch.onImage.src isEqualToString:expectedOnName],@"expected %@, but %@",expectedOnName,theSwitch.onImage.src);
+						XCTAssertTrue([theSwitch.onImage.src isEqualToString:expectedOnName],@"expected %@, but %@",expectedOnName,theSwitch.onImage.src);
 						NSString *expectedOffName = [[NSMutableString alloc] initWithFormat:@"%c.png",(char)97 + state_index++];
-						STAssertTrue([theSwitch.offImage.src isEqualToString:expectedOffName],@"expected %@, but %@",expectedOffName,theSwitch.offImage.src);
+						XCTAssertTrue([theSwitch.offImage.src isEqualToString:expectedOffName],@"expected %@, but %@",expectedOffName,theSwitch.offImage.src);
 /*
 						// assert sensor
 						for (int i = 0; i < [theSwitch.sensor.states count]; i++) {
@@ -296,8 +296,8 @@
 		}
 	}
 	
-	NSLog(@"groups count = %d",[groups count]);
-	NSLog(@"screens count = %d",[screens count]);
+	NSLog(@"groups count = %lu",(unsigned long)[groups count]);
+	NSLog(@"screens count = %lu",(unsigned long)[screens count]);
 	NSLog(@"xml parse done");
 	
 	NSMutableArray *screenNames = [NSMutableArray arrayWithObjects:@"basement",@"floor",nil];
@@ -305,14 +305,14 @@
 	
 	//check screens
 	for (int i=0;i<screenNames.count;i++) {
-		STAssertTrue([[screenNames objectAtIndex:i] isEqualToString:[[screens objectAtIndex:i] name]],@"expected %@, but %@",[screenNames objectAtIndex:i],[[screens objectAtIndex:i] name]);
-		STAssertTrue([[[ORObjectIdentifier alloc] initWithIntegerId:i+5] isEqual:[[screens objectAtIndex:i] identifier]], @"expected %d, but %@", i+5, [[screens objectAtIndex:i] identifier]);
+		XCTAssertTrue([[screenNames objectAtIndex:i] isEqualToString:[[screens objectAtIndex:i] name]],@"expected %@, but %@",[screenNames objectAtIndex:i],[[screens objectAtIndex:i] name]);
+		XCTAssertTrue([[[ORObjectIdentifier alloc] initWithIntegerId:i+5] isEqual:[[screens objectAtIndex:i] identifier]], @"expected %d, but %@", i+5, [[screens objectAtIndex:i] identifier]);
 	}
 	
 	//check groups
 	for (int i=0;i<groupNames.count;i++) {
-		STAssertTrue([[groupNames objectAtIndex:i] isEqualToString:[[groups objectAtIndex:i] name]],@"expected %@, but %@",[groupNames objectAtIndex:i],[[groups objectAtIndex:i] name]);
-		STAssertTrue([[[ORObjectIdentifier alloc] initWithIntegerId:i+1] isEqual:[[groups objectAtIndex:i] identifier]], @"expected %d, but %@", i+1, [[groups objectAtIndex:i] identifier]);
+		XCTAssertTrue([[groupNames objectAtIndex:i] isEqualToString:[[groups objectAtIndex:i] name]],@"expected %@, but %@",[groupNames objectAtIndex:i],[[groups objectAtIndex:i] name]);
+		XCTAssertTrue([[[ORObjectIdentifier alloc] initWithIntegerId:i+1] isEqual:[[groups objectAtIndex:i] identifier]], @"expected %d, but %@", i+1, [[groups objectAtIndex:i] identifier]);
 	}
 	ORScreen *screen1 = (ORScreen *)[screens objectAtIndex:0];
                       /*
@@ -513,16 +513,16 @@
 	int state_index = 0;
 	NSMutableArray *cells = [[NSMutableArray alloc] init];
 	for (ORGroup *group in groups) {
-		NSLog(@"group %@ has %d screen", group.name,group.screens.count);
+		NSLog(@"group %@ has %lu screen", group.name,(unsigned long)group.screens.count);
 		for (ORScreen *screen in group.screens) {
-			NSLog(@"screen %@ has %d layout", screen.name, screen.layouts.count);
+			NSLog(@"screen %@ has %lu layout", screen.name, (unsigned long)screen.layouts.count);
 			for (ORLayoutContainer *layout in screen.layouts) {
 				if([layout isKindOfClass:[ORGridLayoutContainer class]]){					
 					NSLog(@"layout is grid ");
 					ORGridLayoutContainer *grid =(ORGridLayoutContainer *)layout;
-					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%d %d %d %d",grid.left,grid.top,grid.width,grid.height];
+					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%ld %ld %lu %lu",(long)grid.left,(long)grid.top, (unsigned long)grid.width,(unsigned long)grid.height];
 					NSString *expectedAttrs = @"20 20 300 400";
-					STAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
+					XCTAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
 					
 					for (ORGridCell *cell in grid.cells) {
 						[cells addObject:cell];
@@ -565,8 +565,8 @@
 		}
 	}
 	
-	NSLog(@"groups count = %d",[groups count]);
-	NSLog(@"screens count = %d",[screens count]);
+	NSLog(@"groups count = %lu",(unsigned long)[groups count]);
+	NSLog(@"screens count = %lu",(unsigned long)[screens count]);
 	NSLog(@"xml parse done");
 	
 	NSMutableArray *screenNames = [NSMutableArray arrayWithObjects:@"basement",@"floor",nil];
@@ -588,13 +588,13 @@
 	}
      */
 	
-	STAssertTrue(cells.count== 5,@"expected %d, but %d",5,cells.count);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).colspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).rowspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:1]).rowspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:2]).colspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:3]).colspan == 1,@"expected %d",1);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:4]).colspan == 2,@"expected %d",2);
+	XCTAssertTrue(cells.count== 5,@"expected %d, but %lu",5,(unsigned long)cells.count);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).colspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).rowspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:1]).rowspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:2]).colspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:3]).colspan == 1,@"expected %d",1);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:4]).colspan == 2,@"expected %d",2);
 
 	NSLog(@"End testParsePanelGridLabelXML");
 }
@@ -611,16 +611,16 @@
 	int label_index = 0;
 	int state_index = 0;
 	for (ORGroup *group in groups) {
-		NSLog(@"group %@ has %d screen", group.name,group.screens.count);
+		NSLog(@"group %@ has %lu screen", group.name,(unsigned long)group.screens.count);
 		for (ORScreen *screen in group.screens) {
-			NSLog(@"screen %@ has %d layout", screen.name, screen.layouts.count);
+			NSLog(@"screen %@ has %lu layout", screen.name, (unsigned long)screen.layouts.count);
 			for (ORLayoutContainer *layout in screen.layouts) {
 				if([layout isKindOfClass:[ORAbsoluteLayoutContainer class]]){					
 					NSLog(@"layout is absolute ");
 					ORAbsoluteLayoutContainer *abso =(ORAbsoluteLayoutContainer *)layout;
-					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%d %d %d %d",abso.left,abso.top,abso.width,abso.height];
+					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%ld %ld %lu %lu", (long)abso.left,(long)abso.top,(unsigned long)abso.width,(unsigned long)abso.height];
 					NSString *expectedAttrs = @"20 320 100 100";
-					STAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
+					XCTAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
 					
 					if ([abso.widget isKindOfClass:[ORLabel class]]) {
 						ORLabel *theLabel= (ORLabel *)abso.widget;
@@ -661,8 +661,8 @@
 		}
 	}
 	
-	NSLog(@"groups count = %d",[groups count]);
-	NSLog(@"screens count = %d",[screens count]);
+	NSLog(@"groups count = %lu",(unsigned long)[groups count]);
+	NSLog(@"screens count = %lu",(unsigned long)[screens count]);
 	NSLog(@"xml parse done");
 	
 	NSMutableArray *screenNames = [NSMutableArray arrayWithObjects:@"basement",@"floor",nil];
@@ -698,29 +698,29 @@
 	NSMutableArray *screens = definition.screens;
 	int image_index = 0;
 	int state_index = 0;
-	NSLog(@"groups count is %d", groups.count);
+	NSLog(@"groups count is %lu", (unsigned long)groups.count);
 	NSMutableArray *cells = [[NSMutableArray alloc] init];
 	for (ORGroup *group in groups) {
-		NSLog(@"group %@ has %d screen", group.name,group.screens.count);
+		NSLog(@"group %@ has %lu screen", group.name,(unsigned long)group.screens.count);
 		for (ORScreen *screen in group.screens) {
-			NSLog(@"screen %@ has %d layout", screen.name, screen.layouts.count);
+			NSLog(@"screen %@ has %lu layout", screen.name, (unsigned long)screen.layouts.count);
 			for (ORLayoutContainer *layout in screen.layouts) {
 				if([layout isKindOfClass:[ORGridLayoutContainer class]]){					
 					NSLog(@"layout is grid ");
 					ORGridLayoutContainer *grid =(ORGridLayoutContainer *)layout;
-					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%d %d %d %d",grid.left,grid.top,grid.width,grid.height];
+					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%ld %ld %lu %lu",(long)grid.left, (long)grid.top,(unsigned long)grid.width,(unsigned long)grid.height];
 					NSString *expectedAttrs = @"20 20 300 400";
-					STAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
+					XCTAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
 
-					NSLog(@"Grid cells count is : %d", grid.cells.count);
+					NSLog(@"Grid cells count is : %lu", (unsigned long)grid.cells.count);
 					for (ORGridCell *cell in grid.cells) {
 						[cells addObject:cell];
 						if ([cell.widget isKindOfClass:[ORImage class]]) {
 							ORImage *theImage = (ORImage *)cell.widget;
 							ORObjectIdentifier *expectedId = [[ORObjectIdentifier alloc] initWithIntegerId:(59 + image_index++)];
-							STAssertEqualObjects(expectedId, theImage.identifier, @"Expected %@, but %@",expectedId,theImage.identifier);
+							XCTAssertEqualObjects(expectedId, theImage.identifier, @"Expected %@, but %@",expectedId,theImage.identifier);
 							NSString *expectedImageSrc = [[NSString alloc] initWithFormat:@"%c.png", (char)97 + state_index++];					
-							STAssertTrue([theImage.src isEqualToString:expectedImageSrc],@"expected %@, but %@", expectedImageSrc, theImage.src);
+							XCTAssertTrue([theImage.src isEqualToString:expectedImageSrc],@"expected %@, but %@", expectedImageSrc, theImage.src);
 //							NSString *expectedImageStyle = @"";
 //							STAssertTrue([theImage.style isEqualToString:expectedImageStyle], @"expected %@, but %@", expectedImageStyle, theImage.style);
 							
@@ -781,8 +781,8 @@
 		}
 	}
 	
-	NSLog(@"groups count = %d",[groups count]);
-	NSLog(@"screens count = %d",[screens count]);
+	NSLog(@"groups count = %lu",(unsigned long)[groups count]);
+	NSLog(@"screens count = %lu",(unsigned long)[screens count]);
 	NSLog(@"xml parse done");
 	
 	NSMutableArray *screenNames = [NSMutableArray arrayWithObjects:@"basement",@"floor",nil];
@@ -804,13 +804,13 @@
 	}
      */
 	
-	STAssertTrue(cells.count== 6,@"expected %d, but %d",6,cells.count);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).colspan == 1,@"expected %d, but %d",1, ((ORGridCell *)[cells objectAtIndex:0]).colspan);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).rowspan == 1,@"expected %d, but %d",1, ((ORGridCell *)[cells objectAtIndex:0]).rowspan);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:1]).rowspan == 1,@"expected %d, but %d",1, ((ORGridCell *)[cells objectAtIndex:1]).rowspan);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:2]).colspan == 1,@"expected %d, but %d",1, ((ORGridCell *)[cells objectAtIndex:2]).colspan);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:3]).colspan == 1,@"expected %d, but %d",1, ((ORGridCell *)[cells objectAtIndex:3]).colspan);
-	STAssertTrue(((ORGridCell *)[cells objectAtIndex:4]).colspan == 1,@"expected %d, but %d",1, ((ORGridCell *)[cells objectAtIndex:4]).colspan);
+	XCTAssertTrue(cells.count== 6,@"expected %d, but %lu",6,(unsigned long)cells.count);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).colspan == 1,@"expected %d, but %lu",1, (unsigned long)((ORGridCell *)[cells objectAtIndex:0]).colspan);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:0]).rowspan == 1,@"expected %d, but %lu",1, (unsigned long)((ORGridCell *)[cells objectAtIndex:0]).rowspan);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:1]).rowspan == 1,@"expected %d, but %lu",1, (unsigned long)((ORGridCell *)[cells objectAtIndex:1]).rowspan);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:2]).colspan == 1,@"expected %d, but %lu",1, (unsigned long)((ORGridCell *)[cells objectAtIndex:2]).colspan);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:3]).colspan == 1,@"expected %d, but %lu",1, (unsigned long)((ORGridCell *)[cells objectAtIndex:3]).colspan);
+	XCTAssertTrue(((ORGridCell *)[cells objectAtIndex:4]).colspan == 1,@"expected %d, but %lu",1, (unsigned long)((ORGridCell *)[cells objectAtIndex:4]).colspan);
 	
 	NSLog(@"End testParsePanelGridImageXML");
 }
@@ -827,23 +827,23 @@
 	int image_index = 0;
 	int state_index = 0;
 	for (ORGroup *group in groups) {
-		NSLog(@"group %@ has %d screen", group.name,group.screens.count);
+		NSLog(@"group %@ has %lu screen", group.name,(unsigned long)group.screens.count);
 		for (ORScreen *screen in group.screens) {
-			NSLog(@"screen %@ has %d layout", screen.name, screen.layouts.count);
+			NSLog(@"screen %@ has %lu layout", screen.name, (unsigned long)screen.layouts.count);
 			for (ORLayoutContainer *layout in screen.layouts) {
 				if([layout isKindOfClass:[ORAbsoluteLayoutContainer class]]){					
 					NSLog(@"layout is absolute ");
 					ORAbsoluteLayoutContainer *abso =(ORAbsoluteLayoutContainer *)layout;
-					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%d %d %d %d",abso.left,abso.top,abso.width,abso.height];
+					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%ld %ld %lu %lu",(long)abso.left,(long)abso.top,(unsigned long)abso.width, (unsigned long)abso.height];
 					NSString *expectedAttrs = @"20 320 100 100";
-					STAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
+					XCTAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
 					
 					if ([abso.widget isKindOfClass:[ORImage class]]) {
 						ORImage *theImage= (ORImage *)abso.widget;
 						ORObjectIdentifier *expectedId = [[ORObjectIdentifier alloc] initWithIntegerId:(59 + image_index++)];
-						STAssertEqualObjects(expectedId, theImage.identifier, @"expected %@, but %@", expectedId, theImage.identifier);
+						XCTAssertEqualObjects(expectedId, theImage.identifier, @"expected %@, but %@", expectedId, theImage.identifier);
 						NSString *imageSrc = [[NSString alloc] initWithFormat:@"%c.png", (char)97 + state_index++];
-						STAssertTrue([theImage.src isEqualToString:imageSrc],@"expected %@, but %@", theImage.src, imageSrc);
+						XCTAssertTrue([theImage.src isEqualToString:imageSrc],@"expected %@, but %@", theImage.src, imageSrc);
 //						NSString *expectedImageStyle = @"";
 //						STAssertTrue([theImage.style isEqualToString:expectedImageStyle], @"expected %@, but %@", expectedImageStyle, theImage.style);
 						
@@ -902,8 +902,8 @@
 		}
 	}
 	
-	NSLog(@"groups count = %d",[groups count]);
-	NSLog(@"screens count = %d",[screens count]);
+	NSLog(@"groups count = %lu",(unsigned long)[groups count]);
+	NSLog(@"screens count = %lu",(unsigned long)[screens count]);
 	NSLog(@"xml parse done");
 	
 	NSMutableArray *screenNames = [NSMutableArray arrayWithObjects:@"basement",@"floor",nil];
@@ -941,7 +941,7 @@
 	int image_index = 0;
 	int state_index = 0;
 	for (ORGroup *group in groups) {
-		NSLog(@"group %@ has %d screen", group.name,group.screens.count);
+		NSLog(@"group %@ has %lu screen", group.name,(unsigned long)group.screens.count);
 		for (ORScreen *screen in group.screens) {
 			
 			NSLog(@"Begin test background of screen %@", [screen name]);
@@ -973,29 +973,29 @@
 			NSLog(@"End test background of screen %@", [screen name]);			
 			background_index++;
 			*/
-			NSLog(@"screen %@ has %d layout", screen.name, screen.layouts.count);
+			NSLog(@"screen %@ has %lu layout", screen.name, (unsigned long)screen.layouts.count);
 			for (ORLayoutContainer *layout in screen.layouts) {
 				if([layout isKindOfClass:[ORAbsoluteLayoutContainer class]]){					
 					NSLog(@"layout is absolute ");
 					ORAbsoluteLayoutContainer *abso =(ORAbsoluteLayoutContainer *)layout;
-					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%d %d %d %d",abso.left,abso.top,abso.width,abso.height];
+					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%ld %ld %lu %lu",(long)abso.left,(long)abso.top,(unsigned long)abso.width,(unsigned long)abso.height];
 					NSString *expectedAttrs = @"20 320 100 100";
-					STAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
+					XCTAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
 					
 					if ([abso.widget isKindOfClass:[ORImage class]]) {
 						ORImage *theImage= (ORImage *)abso.widget;
 						ORObjectIdentifier *expectedId = [[ORObjectIdentifier alloc] initWithIntegerId:(59 + image_index++)];
-						STAssertEqualObjects(expectedId, theImage.identifier, @"expected %@, but %@", expectedId, theImage.identifier);
+						XCTAssertEqualObjects(expectedId, theImage.identifier, @"expected %@, but %@", expectedId, theImage.identifier);
 						NSString *imageSrc = [[NSString alloc] initWithFormat:@"%c.png", (char)97 + state_index++];
-						STAssertTrue([theImage.src isEqualToString:imageSrc],@"expected %@, but %@", theImage.src, imageSrc);
+						XCTAssertTrue([theImage.src isEqualToString:imageSrc],@"expected %@, but %@", theImage.src, imageSrc);
 					}					
 				}				
 			}
 		}
 	}
 	
-	NSLog(@"groups count = %d",[groups count]);
-	NSLog(@"screens count = %d",[screens count]);
+	NSLog(@"groups count = %lu",(unsigned long)[groups count]);
+	NSLog(@"screens count = %lu",(unsigned long)[screens count]);
 	NSLog(@"xml parse done");
 	
 	NSMutableArray *screenNames = [NSMutableArray arrayWithObjects:@"basement",@"floor",nil];
@@ -1033,7 +1033,7 @@
 	int image_index = 0;
 	int state_index = 0;
 	for (ORGroup *group in groups) {
-		NSLog(@"group %@ has %d screen", group.name,group.screens.count);
+		NSLog(@"group %@ has %lu screen", group.name,(unsigned long)group.screens.count);
 		for (ORScreen *screen in group.screens) {
 			/*
 			NSLog(@"Begin test background of screen %@", [screen name]);
@@ -1065,29 +1065,29 @@
 			
 			background_index++;
 			*/
-			NSLog(@"screen %@ has %d layout", screen.name, screen.layouts.count);
+			NSLog(@"screen %@ has %lu layout", screen.name, (unsigned long)screen.layouts.count);
 			for (ORLayoutContainer *layout in screen.layouts) {
 				if([layout isKindOfClass:[ORAbsoluteLayoutContainer class]]){					
 					NSLog(@"layout is absolute ");
 					ORAbsoluteLayoutContainer *abso =(ORAbsoluteLayoutContainer *)layout;
-					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%d %d %d %d",abso.left,abso.top,abso.width,abso.height];
+					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%ld %ld %lu %lu", (long)abso.left,(long)abso.top,(unsigned long)abso.width,(unsigned long)abso.height];
 					NSString *expectedAttrs = @"20 320 100 100";
-					STAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
+					XCTAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
 					
 					if ([abso.widget isKindOfClass:[ORImage class]]) {
 						ORImage *theImage= (ORImage *)abso.widget;
 						ORObjectIdentifier *expectedId = [[ORObjectIdentifier alloc] initWithIntegerId:(59 + image_index++)];
-						STAssertEqualObjects(expectedId, theImage.identifier, @"expected %@, but %@", expectedId, theImage.identifier);
+						XCTAssertEqualObjects(expectedId, theImage.identifier, @"expected %@, but %@", expectedId, theImage.identifier);
 						NSString *imageSrc = [[NSString alloc] initWithFormat:@"%c.png", (char)97 + state_index++];
-						STAssertTrue([theImage.src isEqualToString:imageSrc],@"expected %@, but %@", theImage.src, imageSrc);
+						XCTAssertTrue([theImage.src isEqualToString:imageSrc],@"expected %@, but %@", theImage.src, imageSrc);
 					}					
 				}				
 			}
 		}
 	}
 	
-	NSLog(@"groups count = %d",[groups count]);
-	NSLog(@"screens count = %d",[screens count]);
+	NSLog(@"groups count = %lu",(unsigned long)[groups count]);
+	NSLog(@"screens count = %lu",(unsigned long)[screens count]);
 	NSLog(@"xml parse done");
 	
 	NSMutableArray *screenNames = [NSMutableArray arrayWithObjects:@"basement",@"floor",nil];
@@ -1212,13 +1212,13 @@
 	NSMutableArray *expectedTabBarItemsName = [NSMutableArray arrayWithObjects:@"previous", @"next", @"setting", nil];
 	NSMutableArray *expectedTabBarItemsImageSrc = [NSMutableArray arrayWithObjects:@"previous.png", @"next.png", @"setting.png", nil];
 	NSArray *tabBarItems = tabBar.items;
-	NSLog(@"TabBar items count is : %d", tabBarItems.count);
+	NSLog(@"TabBar items count is : %lu", (unsigned long)tabBarItems.count);
 	for (int i=0; i<tabBarItems.count; i++) {
 		ORTabBarItem *tabBarItem = [tabBarItems objectAtIndex:i];
 		
 		// assert tabbar item name.
 		NSString *expectedTabBarItemName = [expectedTabBarItemsName objectAtIndex:i];
-		STAssertTrue([tabBarItem.label.text isEqualToString:expectedTabBarItemName], @"expected %@, but %@", expectedTabBarItemName, tabBarItem.label.text);
+		XCTAssertTrue([tabBarItem.label.text isEqualToString:expectedTabBarItemName], @"expected %@, but %@", expectedTabBarItemName, tabBarItem.label.text);
 		NSLog(@"tabbarItemName is %@", tabBarItem.label.text);
 		NSLog(@"expectedTabbarItemName is %@", expectedTabBarItemName);
 		/*
@@ -1244,7 +1244,7 @@
 		*/
 		// assert tabbar item image
 		NSString *expectedTabBarItemImageSrc = [expectedTabBarItemsImageSrc objectAtIndex:i];
-		STAssertTrue([tabBarItem.image.src isEqualToString:expectedTabBarItemImageSrc], @"expected %@, but %@", expectedTabBarItemImageSrc, tabBarItem.image.src);
+		XCTAssertTrue([tabBarItem.image.src isEqualToString:expectedTabBarItemImageSrc], @"expected %@, but %@", expectedTabBarItemImageSrc, tabBarItem.image.src);
 		NSLog(@"tabBarItemImage src is %@", [[tabBarItem image] src]);
 		NSLog(@"expectedTabBarItemsImage src is %@", expectedTabBarItemImageSrc);
 	}
@@ -1252,13 +1252,13 @@
 	
 	NSMutableArray *groups = definition.groups;
 	NSMutableArray *screens = definition.screens;
-	NSLog(@"Has %d grounp(s).", [groups count]);
+	NSLog(@"Has %lu grounp(s).", (unsigned long)[groups count]);
 	int background_index = 1;
 	int image_index = 0;
 	int state_index = 0;
 	NSMutableArray *cells = [[NSMutableArray alloc] init];
 	for (ORGroup *group in groups) {
-		NSLog(@"group %@ has %d screen", group.name,group.screens.count);
+		NSLog(@"group %@ has %lu screen", group.name,(unsigned long)group.screens.count);
 		for (ORScreen *screen in group.screens) {
 			/*
 			NSLog(@"Begin test background of screen %@", [screen name]);
@@ -1291,23 +1291,23 @@
 			NSLog(@"End test background of screen %@", [screen name]);			
 			background_index++;
 			*/
-			NSLog(@"screen %@ has %d layout", screen.name, screen.layouts.count);
+			NSLog(@"screen %@ has %lu layout", screen.name, (unsigned long)screen.layouts.count);
 			for (ORLayoutContainer *layout in screen.layouts) {
 				if([layout isKindOfClass:[ORGridLayoutContainer class]]){					
 					NSLog(@"layout is grid ");
 					ORGridLayoutContainer *grid =(ORGridLayoutContainer *)layout;
-					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%d %d %d %d",grid.left,grid.top,grid.width,grid.height];
+					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%ld %ld %lu %lu",(long)grid.left, (long)grid.top,(unsigned long)grid.width,(unsigned long)grid.height];
 					NSString *expectedAttrs = @"20 20 300 400";
-					STAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
+					XCTAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
 					
 					for (ORGridCell *cell in grid.cells) {
 						[cells addObject:cell];
 						if ([cell.widget isKindOfClass:[ORImage class]]) {
 							ORImage *theImage = (ORImage *)cell.widget;
 							ORObjectIdentifier *expectedId = [[ORObjectIdentifier alloc] initWithIntegerId:(59 + image_index++)];
-							STAssertEqualObjects(expectedId, theImage.identifier, @"expected %@, but %@", expectedId, theImage.identifier);
+							XCTAssertEqualObjects(expectedId, theImage.identifier, @"expected %@, but %@", expectedId, theImage.identifier);
 							NSString *imageSrc = [[NSString alloc] initWithFormat:@"%c.png", (char)97 + state_index++];					
-							STAssertTrue([theImage.src isEqualToString:imageSrc],@"expected %@, but %@", imageSrc, theImage.src);
+							XCTAssertTrue([theImage.src isEqualToString:imageSrc],@"expected %@, but %@", imageSrc, theImage.src);
 						}	
 					}
 				}				
@@ -1315,8 +1315,8 @@
 		}
 	}
 	
-	NSLog(@"groups count = %d",[groups count]);
-	NSLog(@"screens count = %d",[screens count]);
+	NSLog(@"groups count = %lu",(unsigned long)[groups count]);
+	NSLog(@"screens count = %lu",(unsigned long)[screens count]);
 	NSLog(@"xml parse done");
 	
 	NSMutableArray *screenNames = [NSMutableArray arrayWithObjects:@"basement",@"floor",nil];
@@ -1350,7 +1350,7 @@
 
 	NSMutableArray *groups = definition.groups;
 	NSMutableArray *screens = definition.screens;
-	NSLog(@"Has %d grounp(s).", [groups count]);
+	NSLog(@"Has %lu grounp(s).", (unsigned long)[groups count]);
 	int background_index = 1;
 	int image_index = 0;
 	int state_index = 0;
@@ -1362,13 +1362,13 @@
 		NSMutableArray *expectedLocalTabBarItemsName = [NSMutableArray arrayWithObjects:@"previous", @"next", @"setting", nil];
 		NSMutableArray *expectedLocalTabBarItemsImageSrc = [NSMutableArray arrayWithObjects:@"previous.png", @"next.png", @"setting.png", nil];
 		NSArray *localTabBarItems = localTabBar.items;
-		NSLog(@"LocalTabBar items count of group '%@' is : %d", group.name, localTabBarItems.count);
+		NSLog(@"LocalTabBar items count of group '%@' is : %lu", group.name, (unsigned long)localTabBarItems.count);
 		for (int i=0; i<localTabBarItems.count; i++) {
 			ORTabBarItem *localTabBarItem = [localTabBarItems objectAtIndex:i];
 			
 			// assert tabbar item name.
 			NSString *expectedLocalTabBarItemName = [expectedLocalTabBarItemsName objectAtIndex:i];
-			STAssertTrue([localTabBarItem.label.text isEqualToString:expectedLocalTabBarItemName], @"expected %@, but %@", expectedLocalTabBarItemName, localTabBarItem.label.text);
+			XCTAssertTrue([localTabBarItem.label.text isEqualToString:expectedLocalTabBarItemName], @"expected %@, but %@", expectedLocalTabBarItemName, localTabBarItem.label.text);
 			NSLog(@"localTabbarItemName is %@", localTabBarItem.label.text);
 			NSLog(@"expectedLocalTabbarItemName is %@", expectedLocalTabBarItemName);
 		
@@ -1395,13 +1395,13 @@
 	*/
 			// assert tabbar item image
 			NSString *expectedLocalTabBarItemImageSrc = [expectedLocalTabBarItemsImageSrc objectAtIndex:i];
-			STAssertTrue([localTabBarItem.image.src isEqualToString:expectedLocalTabBarItemImageSrc], @"expected %@, but %@", expectedLocalTabBarItemImageSrc, localTabBarItem.image.src);
+			XCTAssertTrue([localTabBarItem.image.src isEqualToString:expectedLocalTabBarItemImageSrc], @"expected %@, but %@", expectedLocalTabBarItemImageSrc, localTabBarItem.image.src);
 			NSLog(@"localTabBarItemImage src is %@", [[localTabBarItem image] src]);
 			NSLog(@"expectedLocalTabBarItemsImage src is %@", expectedLocalTabBarItemImageSrc);
 		}
 		// End assert tabbar
 		
-		NSLog(@"group %@ has %d screen", group.name,group.screens.count);
+		NSLog(@"group %@ has %lu screen", group.name,(unsigned long)group.screens.count);
 		for (ORScreen *screen in group.screens) {
 			/*
 			NSLog(@"Begin test background of screen %@", [screen name]);
@@ -1434,23 +1434,23 @@
 			NSLog(@"End test background of screen %@", [screen name]);			
 			background_index++;
 			*/
-			NSLog(@"screen %@ has %d layout", screen.name, screen.layouts.count);
+			NSLog(@"screen %@ has %lu layout", screen.name, (unsigned long)screen.layouts.count);
 			for (ORLayoutContainer *layout in screen.layouts) {
 				if([layout isKindOfClass:[ORGridLayoutContainer class]]){					
 					NSLog(@"layout is grid ");
 					ORGridLayoutContainer *grid =(ORGridLayoutContainer *)layout;
-					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%d %d %d %d",grid.left,grid.top,grid.width,grid.height];
+					NSString *layoutAttrs = [[NSMutableString alloc] initWithFormat:@"%ld %ld %lu %lu", (long)grid.left,(long)grid.top,(unsigned long)grid.width,(unsigned long)grid.height];
 					NSString *expectedAttrs = @"20 20 300 400";
-					STAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
+					XCTAssertTrue([expectedAttrs isEqualToString:layoutAttrs],@"expected %@, but %@",expectedAttrs,layoutAttrs);
 					
 					for (ORGridCell *cell in grid.cells) {
 						[cells addObject:cell];
 						if ([cell.widget isKindOfClass:[ORImage class]]) {
 							ORImage *theImage = (ORImage *)cell.widget;
 							ORObjectIdentifier *expectedId = [[ORObjectIdentifier alloc] initWithIntegerId:(59 + image_index++)];
-							STAssertEqualObjects(expectedId, theImage.identifier, @"expected %@, but %@", expectedId, theImage.identifier);
+							XCTAssertEqualObjects(expectedId, theImage.identifier, @"expected %@, but %@", expectedId, theImage.identifier);
 							NSString *imageSrc = [[NSString alloc] initWithFormat:@"%c.png", (char)97 + state_index++];					
-							STAssertTrue([theImage.src isEqualToString:imageSrc],@"expected %@, but %@", imageSrc, theImage.src);
+							XCTAssertTrue([theImage.src isEqualToString:imageSrc],@"expected %@, but %@", imageSrc, theImage.src);
 						}	
 					}
 				}				
@@ -1458,8 +1458,8 @@
 		}
 	}
 	
-	NSLog(@"groups count = %d",[groups count]);
-	NSLog(@"screens count = %d",[screens count]);
+	NSLog(@"groups count = %lu",(unsigned long)[groups count]);
+	NSLog(@"screens count = %lu",(unsigned long)[screens count]);
 	NSLog(@"xml parse done");
 	
 	NSMutableArray *screenNames = [NSMutableArray arrayWithObjects:@"basement",@"floor",nil];
@@ -1521,8 +1521,8 @@
 	}
      */
 	
-	NSLog(@"groups count = %d",[groups count]);
-	NSLog(@"screens count = %d",[screens count]);
+	NSLog(@"groups count = %lu",(unsigned long)[groups count]);
+	NSLog(@"screens count = %lu",(unsigned long)[screens count]);
 
 	NSLog(@"xml parse done");
 }

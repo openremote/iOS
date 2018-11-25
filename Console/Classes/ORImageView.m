@@ -40,7 +40,7 @@
         self.label = [[UILabel alloc] initWithFrame:frame];
         self.label.hidden = YES;
         self.label.backgroundColor = [UIColor clearColor];
-        self.label.textAlignment = UITextAlignmentCenter;
+        self.label.textAlignment = NSTextAlignmentCenter;
         [self addSubview:self.label];
     }
     return self;

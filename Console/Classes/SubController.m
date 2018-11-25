@@ -22,13 +22,13 @@
 
 @interface SubController()
 
-@property (nonatomic, readwrite, strong) UIView *view;
+//@property (nonatomic, readwrite, strong) UIView *view;
 
 @end
 
 @implementation SubController
 
 
-@synthesize view;
+//@synthesize view;
 
 @end

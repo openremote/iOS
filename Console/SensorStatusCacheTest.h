@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 OpenRemote, Inc. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface SensorStatusCacheTest : SenTestCase
+@interface SensorStatusCacheTest : XCTestCase
 
 @end

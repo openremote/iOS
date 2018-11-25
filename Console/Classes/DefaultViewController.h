@@ -76,6 +76,7 @@
  */
 - (BOOL)isAppLaunching;
 
+- (void)presentLoginViewWithDelegate:(id <LoginViewControllerDelegate>)delegate forController:(ORControllerConfig *)controller;
 - (void)presentLoginViewWithDelegate:(id <LoginViewControllerDelegate>)delegate;
 
 - (void)connectToController;

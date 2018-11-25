@@ -25,39 +25,39 @@
 @implementation NSString_ORAdditionsTest
 
 - (void)test_isValidIPAddress_ValidIPAddress {
-    STAssertTrue([@"192.168.0.1" isValidIPAddress], @"Provided string is a valid IP address");
+    XCTAssertTrue([@"192.168.0.1" isValidIPAddress], @"Provided string is a valid IP address");
 }
 
 - (void)test_isValidIPAddress_InvalidIPAddress {
-    STAssertFalse([@"192.168.433.1" isValidIPAddress], @"Provided string is not a valid IP address");
+    XCTAssertFalse([@"192.168.433.1" isValidIPAddress], @"Provided string is not a valid IP address");
 }
 
 - (void)test_isValidIPAddress_HostName {
-    STAssertFalse([@"www.openremote.org" isValidIPAddress], @"Provided string is not a valid IP address");
+    XCTAssertFalse([@"www.openremote.org" isValidIPAddress], @"Provided string is not a valid IP address");
 }
 
 - (void)test_hostOfURL_ValidURL_HostName {
-    STAssertEqualObjects([@"http://localhost:8080/controller" hostOfURL], @"localhost", @"Expected localhost as host");
+    XCTAssertEqualObjects([@"http://localhost:8080/controller" hostOfURL], @"localhost", @"Expected localhost as host");
 }
 
 - (void)test_hostOfURL_ValidURL_IPAddress {
-    STAssertEqualObjects([@"http://192.168.1.1:8080/controller" hostOfURL], @"192.168.1.1", @"Expected 192.168.1.1 as host");    
+    XCTAssertEqualObjects([@"http://192.168.1.1:8080/controller" hostOfURL], @"192.168.1.1", @"Expected 192.168.1.1 as host");    
 }
 
 - (void)test_hostOfURL_InvalidURL {
-    STAssertNil([@"not a URL" hostOfURL], @"Provided string is not a URL, should return nil");
+    XCTAssertNil([@"not a URL" hostOfURL], @"Provided string is not a URL, should return nil");
 }
 
 - (void)test_portAsStringOfURL_ValidURL {    
-    STAssertEqualObjects([@"http://localhost:8080/controller" portAsStringOfURL], @"8080", @"Expected 8080 as port");
+    XCTAssertEqualObjects([@"http://localhost:8080/controller" portAsStringOfURL], @"8080", @"Expected 8080 as port");
 }
 
 - (void)test_portAsStringOfURL_ValidURL_NoPort {    
-    STAssertNil([@"http://localhost/controller" portAsStringOfURL], @"Provided URL does not define any port, should return nil");
+    XCTAssertNil([@"http://localhost/controller" portAsStringOfURL], @"Provided URL does not define any port, should return nil");
 }
 
 - (void)test_portAsStringOfURL_InvalidURL {
-    STAssertNil([@"not a URL" portAsStringOfURL], @"Provided string is not a URL, should return nil");
+    XCTAssertNil([@"not a URL" portAsStringOfURL], @"Provided string is not a URL, should return nil");
 }
 
 @end
