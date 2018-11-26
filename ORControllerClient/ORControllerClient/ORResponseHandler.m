@@ -43,15 +43,17 @@
             ORRESTErrorParser *errorParser = [[ORRESTErrorParser alloc] initWithData:receivedData];
             ORRESTError *receivedError = [errorParser parseRESTError];
             
-            [userInfo setObject:receivedError.message forKey:NSLocalizedDescriptionKey];
+            userInfo[NSLocalizedDescriptionKey] = receivedError.message;
         } else {
-            [userInfo setObject:@"Generic HTTP error" forKey:NSLocalizedDescriptionKey];
+            userInfo[NSLocalizedDescriptionKey] = @"Generic HTTP error";
         }
         NSURL *url = [[connection currentRequest] URL];
-        [userInfo setObject:url forKey:NSURLErrorFailingURLErrorKey];
-        [userInfo setObject:[url absoluteString] forKey:NSURLErrorFailingURLStringErrorKey];
-        
-        self._errorHandler([NSError errorWithDomain:kORClientErrorDomain code:self._errorCode userInfo:userInfo]);
+        userInfo[NSURLErrorFailingURLErrorKey] = url;
+        userInfo[NSURLErrorFailingURLStringErrorKey] = [url absoluteString];
+
+        if (self._errorHandler) {
+            self._errorHandler([NSError errorWithDomain:kORClientErrorDomain code:self._errorCode userInfo:userInfo]);
+        }
     } else {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
             [self processValidResponseData:receivedData];
